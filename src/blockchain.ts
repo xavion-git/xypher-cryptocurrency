@@ -8,6 +8,10 @@ class Block {
 
     constructor(index: number, hash: string, previousHash: string, timestamp: number, data: string){
         this.index = index;
+        this.previousHash = previousHash;
+        this.timestamp = timestamp;
+        this.data = data;
+        this.hash = hash;
     }
 
 }
