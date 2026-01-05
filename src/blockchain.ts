@@ -54,3 +54,4 @@ const isValidNewBlock = (newBlock: Block, previousBlock: Block) => {
     }
     return true;
 }
+
