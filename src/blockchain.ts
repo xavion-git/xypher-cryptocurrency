@@ -201,7 +201,8 @@ const addBlockToChain = (newBlock: Block) => {
 
 // Initial Conflicts so the longer chain dominates
 const replaceChain = (newBlocks: Block[]) => {
-    if (isValidChain(newBlocks) && newBlocks.length > getBlockchain().length) {
+        if (isValidChain(newBlocks) &&
+        getAccumulatedDifficulty(newBlocks) > getAccumulatedDifficulty(getBlockchain())) {
         console.log('Received blockchain is valid. Replacing current blockchain with received blockchain');
         blockchain = newBlocks;
         broadcastLatest();

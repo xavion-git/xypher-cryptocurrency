@@ -36,3 +36,11 @@ One of the most critical parts of a cryptocurrency is **hashing**. In this proje
 The block hash can also be though of as a unique identifier. For Example if the blocks with the same index can happen, but they all have unique hashes.
 
 ![pop-up](./img/Screenshot%202026-01-05%20171818.png)
+
+## Node Communication
+An essential responsibility of each node is to share and synchronize the blockchain with other nodes in the network. To maintain consistency across the network, the following rules are applied:
+- When a node creates a new block, it broadcasts the block to all connected peers.
+- When a node connects to a new peer, it requests the peer’s latest block.
+- If a node receives a block with an index higher than its current latest block, it either appends the block to its chain or requests the full blockchain to resolve any discrepancies.
+
+![pop-up](./img/Screenshot%202026-01-05%20172831.png)

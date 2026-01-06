@@ -8,7 +8,7 @@ import {connectToPeers, getSockets, initP2PServer} from './p2p';
 const httpPort: number = parseInt(process.env.HTTP_PORT ?? '3001', 10);
 const p2pPort: number = parseInt(process.env.P2P_PORT ?? '6001', 10);
 
-const initHttpServer = ( myHttpPort: number ) => {
+const initHttpServer = (myHttpPort: number) => {
     const app = express();
     app.use(bodyParser.json());
 
@@ -19,10 +19,10 @@ const initHttpServer = ( myHttpPort: number ) => {
         const newBlock: Block = generateNextBlock(req.body.data);
         res.send(newBlock);
     });
-    app.get('/peers', (req, res) => {
-        res.send(getSockets().map(( s: any ) => s._socket.remoteAddress + ':' + s._socket.remotePort));
+    app.get('/peers', (req: Request, res: Response) => {
+        res.send(getSockets().map((s: any) => s._socket.remoteAddress + ':' + s._socket.remotePort));
     });
-    app.post('/addPeer', (req, res) => {
+    app.post('/addPeer', (req: Request, res: Response) => {
         connectToPeers(req.body.peer);
         res.send();
     });
