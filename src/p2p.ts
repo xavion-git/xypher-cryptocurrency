@@ -1,4 +1,4 @@
-import * as WebSocket from 'ws';
+import WebSocket from 'ws';
 import {Server} from 'ws';
 import {addBlockToChain, Block, getBlockchain, getLatestBlock, isValidBlockStructure, replaceChain} from './blockchain';
 
@@ -11,7 +11,7 @@ enum MessageType {
 }
 
 class Message {
-    public type: MessageType;
+    public type!: MessageType;
     public data: any;
 }
 
@@ -37,7 +37,7 @@ const JSONToObject = <T>(data: string): T => {
         return JSON.parse(data);
     } catch (e) {
         console.log(e);
-        return null;
+        throw new Error('Value not found');
     }
 };
 
