@@ -1,5 +1,6 @@
 import * as CryptoJS from 'crypto-js';
 import {broadcastLatest} from './p2p';
+import {hexToBinary} from './util';
 
 class Block {
 
@@ -8,13 +9,17 @@ class Block {
     public previousHash: string;
     public timestamp: number;
     public data: string;
+    public difficulty: number;
+    public nonce: number;
 
-    constructor(index: number, hash: string, previousHash: string, timestamp: number, data: string){
+    constructor(index: number, hash: string, previousHash: string, timestamp: number, data: string, difficulty: number, nonce: number){
         this.index = index;
         this.previousHash = previousHash;
         this.timestamp = timestamp;
         this.data = data;
         this.hash = hash;
+        this.difficulty = difficulty;
+        this.nonce = nonce;
     }
 
 }
@@ -22,7 +27,7 @@ class Block {
 // The GenesisBlock is the first block in the block chain and it is the only block with no previousHash 
 // So needed to hard code it in
 const genesisBlock: Block = new Block(
-    0, '816534932c2b7154836da6afc367695e6337db8a921823784c14378abed4f7d7', '', 1465154705, 'my genesis block!!'
+    0, '91a73664bc84c0baa1fc75ea6e4aa6d1d20c5df664c724e3159aefc2e1186627', '', 1465154705, 'my genesis block!!', 0, 0
 );
 
 //storing the block in memory 
@@ -31,6 +36,34 @@ let blockchain: Block[] = [genesisBlock];
 const getBlockchain = (): Block[] => blockchain;
 
 const getLatestBlock = (): Block => blockchain[blockchain.length - 1];
+
+// in seconds 
+const BLOCK_GENERATION_INTERVAL: number = 10;
+
+// in blocks
+const DIFFICULTY_ADJUSTMET_INTERVAL: number = 10;
+
+const getDifficulty = (aBlockchain: Block[]): number => {
+    const latestBlock: Block = aBlockchain[blockchain.length - 1];
+    if (latestBlock.index % DIFFICULTY_ADJUSTMENT_INTERVAL === 0 && latestBlock.index !== 0) {
+        return getAdjustedDifficulty(latestBlock, aBlockchain);
+    } else {
+        return latestBlock.difficulty;
+    }
+};
+
+const getAdjustedDifficulty = (latestBlock: Block, aBlockchain: Block[]) => {
+    const prevAdjustmentBlock: Block = aBlockchain[blockchain.length - DIFFICULTY_ADJUSTMENT_INTERVAL];
+    const timeExpected: number = BLOCK_GENERATION_INTERVAL * DIFFICULTY_ADJUSTMENT_INTERVAL;
+    const timeTaken: number = latestBlock.timestamp - prevAdjustmentBlock.timestamp;
+    if (timeTaken < timeExpected / 2) {
+        return prevAdjustmentBlock.difficulty + 1;
+    } else if (timeTaken > timeExpected * 2) {
+        return prevAdjustmentBlock.difficulty - 1;
+    } else {
+        return prevAdjustmentBlock.difficulty;
+    }
+};
 
 // calculates the hash using the index, previousHash, timestamp, and the data 
 const calculateHash = (index: number, previousHash: string, timestamp: number, data: string) =>
