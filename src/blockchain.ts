@@ -134,6 +134,24 @@ const getAccumulatedDifficulty = (aBlockchain: Block[]): number => {
         .reduce((a, b) => a + b);
 };
 
+const isValidTimestamp = (newBlock: Block, previousBlock: Block): boolean => {
+    return ( previousBlock.timestamp - 60 < newBlock.timestamp )
+        && newBlock.timestamp - 60 < getCurrentTimestamp();
+};
+
+const hasValidHash = (block: Block): boolean => {
+
+    if (!hashMatchesBlockContent(block)) {
+        console.log('invalid hash, got:' + block.hash);
+        return false;
+    }
+
+    if (!hashMatchesDifficulty(block.hash, block.difficulty)) {
+        console.log('block difficulty not satisfied. Expected: ' + block.difficulty + 'got: ' + block.hash);
+    }
+    return true;
+};
+
 
 // validating the structure of the block for peer
 const isValidBlockStructure = (block: Block): boolean => {
