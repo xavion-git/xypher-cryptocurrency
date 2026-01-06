@@ -152,6 +152,17 @@ const hasValidHash = (block: Block): boolean => {
     return true;
 };
 
+const hashMatchesBlockContent = (block: Block): boolean => {
+    const blockHash: string = calculateHashForBlock(block);
+    return blockHash === block.hash;
+};
+
+const hashMatchesDifficulty = (hash: string, difficulty: number): boolean => {
+    const hashInBinary: string = hexToBinary(hash);
+    const requiredPrefix: string = '0'.repeat(difficulty);
+    return hashInBinary.startsWith(requiredPrefix);
+};
+
 
 // validating the structure of the block for peer
 const isValidBlockStructure = (block: Block): boolean => {
