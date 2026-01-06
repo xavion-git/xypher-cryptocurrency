@@ -107,20 +107,33 @@ const addBlock = (newBlock: Block) => {
 };
 
 // Validation for integrity 
-const isValidNewBlock = (newBlock: Block, previousBlock: Block) => {
-    if(previousBlock.index + 1 !== newBlock.index) {
-        console.log('invaild index');
+const isValidNewBlock = (newBlock: Block, previousBlock: Block): boolean => {
+    if (!isValidBlockStructure(newBlock)) {
+        console.log('invalid structure');
+        return false;
+    }
+    if (previousBlock.index + 1 !== newBlock.index) {
+        console.log('invalid index');
         return false;
     } else if (previousBlock.hash !== newBlock.previousHash) {
         console.log('invalid previoushash');
         return false;
-    }else if (calculateHashForBlock(newBlock) !== newBlock.hash) {
-        console.log(typeof (newBlock.hash) + ' ' + typeof calculateHashForBlock(newBlock));
-        console.log('invalid hash: ' + calculateHashForBlock(newBlock) + ' ' + newBlock.hash);
+    } else if (!isValidTimestamp(newBlock, previousBlock)) {
+        console.log('invalid timestamp');
         return false;
+    } else if (!hasValidHash(newBlock)) {
+        return false
     }
     return true;
 }
+
+const getAccumulatedDifficulty = (aBlockchain: Block[]): number => {
+    return aBlockchain
+        .map((block) => block.difficulty)
+        .map((difficulty) => Math.pow(2, difficulty))
+        .reduce((a, b) => a + b);
+};
+
 
 // validating the structure of the block for peer
 const isValidBlockStructure = (block: Block): boolean => {
