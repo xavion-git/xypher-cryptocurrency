@@ -1,9 +1,16 @@
-import * as  bodyParser from 'body-parser';
-import express, { NextFunction } from 'express';
-import { Request, Response } from 'express';
+import * as bodyParser from 'body-parser';
+import express, { NextFunction, Request, Response } from 'express';
 
-import {Block, generateNextBlock, getBlockchain} from './blockchain';
-import {connectToPeers, getSockets, initP2PServer} from './p2p';
+import {
+    Block,
+    generateNextBlock,
+    generatenextBlockWithTransaction,
+    generateRawNextBlock,
+    getAccountBalance,
+    getBlockchain
+} from './blockchain';
+import { connectToPeers, getSockets, initP2PServer } from './p2p';
+import { initWallet } from './wallet';
 
 const httpPort: number = parseInt(process.env.HTTP_PORT ?? '3001', 10);
 const p2pPort: number = parseInt(process.env.P2P_PORT ?? '6001', 10);
@@ -12,35 +19,86 @@ const initHttpServer = (myHttpPort: number) => {
     const app = express();
     app.use(bodyParser.json());
 
+    // Global error handler
     app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         if (err) {
-            res.status(400).send(err.message)
+            res.status(400).send(err.message);
+        } else {
+            next();
         }
     });
 
+    // Get blockchain
     app.get('/blocks', (req: Request, res: Response) => {
         res.send(getBlockchain());
     });
-    app.post('/mineBlock', (req: Request, res: Response) => {
-        const newBlock: Block | null = generateNextBlock(req.body.data);
-        if (newBlock === null) {
+
+    // Mine a raw block
+    app.post('/mineRawBlock', (req: Request, res: Response) => {
+        const data = req.body.data;
+        if (data == null) {
+            res.status(400).send('data parameter is missing');
+            return;
+        }
+
+        const newBlock: Block | null = generateRawNextBlock(data);
+        if (!newBlock) {
             res.status(400).send('could not generate block');
         } else {
             res.send(newBlock);
         }
     });
-    app.get('/peers', (req: Request, res: Response) => {
-        res.send(getSockets().map((s: any) => s._socket.remoteAddress + ':' + s._socket.remotePort));
+
+    // Mine a block with transaction
+    app.post('/mineTransaction', (req: Request, res: Response) => {
+        const { address, amount } = req.body;
+        if (!address || amount == null) {
+            res.status(400).send('address or amount missing');
+            return;
+        }
+
+        try {
+            const newBlock = generatenextBlockWithTransaction(address, amount);
+            res.send(newBlock);
+        } catch (e: any) {
+            console.error(e.message);
+            res.status(400).send(e.message);
+        }
     });
+
+    // Get balance
+    app.get('/balance', (req: Request, res: Response) => {
+        const balance: number = getAccountBalance();
+        res.send({ balance });
+    });
+
+    // List peers
+    app.get('/peers', (req: Request, res: Response) => {
+        res.send(
+            getSockets().map(
+                (s: any) => `${s._socket.remoteAddress}:${s._socket.remotePort}`
+            )
+        );
+    });
+
+    // Add a new peer
     app.post('/addPeer', (req: Request, res: Response) => {
-        connectToPeers(req.body.peer);
+        const peer = req.body.peer;
+        if (!peer) {
+            res.status(400).send('peer parameter missing');
+            return;
+        }
+        connectToPeers(peer);
         res.send();
     });
 
+    // Start HTTP server
     app.listen(myHttpPort, () => {
-        console.log('Listening http on port: ' + myHttpPort);
+        console.log(`Listening HTTP on port: ${myHttpPort}`);
     });
 };
 
+// Initialize servers and wallet
 initHttpServer(httpPort);
 initP2PServer(p2pPort);
+initWallet();

@@ -123,6 +123,10 @@ const findBlock = (index: number, previousHash: string, timestamp: number, data:
     }
 };
 
+const getAccountBalance = (): number => {
+    return getBalance(getPublicFromWallet(), UnspentTxOuts);
+};
+
 const calculateHashForBlock = (block: Block): string =>
     calculateHash(block.index, block.previousHash, block.timestamp, block.data, block.difficulty, block.nonce);
 
@@ -131,7 +135,7 @@ const calculateHashForBlock = (block: Block): string =>
 const isValidNewBlock = (newBlock: Block, previousBlock: Block): boolean => {
     if (!isValidBlockStructure(newBlock)) {
         console.log('invalid block structure');
-        console.log(newBlock)
+        console.log(newBlock);
     }
     if (previousBlock.index + 1 !== newBlock.index) {
         console.log('invalid index');
@@ -243,4 +247,8 @@ const replaceChain = (newBlocks: Block[]) => {
         console.log('Received blockchain invalid');
     }
 };
-export {Block, getBlockchain, getLatestBlock, generateNextBlock, isValidBlockStructure, replaceChain, addBlockToChain};
+export {
+    Block, getBlockchain, getLatestBlock,
+    generateRawNextBlock, generateNextBlock, generatenextBlockWithTransaction,
+    getAccountBalance, isValidBlockStructure, replaceChain, addBlockToChain
+};
