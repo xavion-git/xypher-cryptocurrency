@@ -87,3 +87,70 @@ const validateTransaction = (transaction: Transaction, aUnspentTxOuts: UnspentTx
 
     return true;
 };
+
+const validateBlockTransactions = (aTransactions: Transaction[], aUnspentTxOuts: UnspentTxOut[], blockIndex: number): boolean => {
+    const coinbaseTx = aTransactions[0];
+    if (!validateCoinbaseTx(coinbaseTx, blockIndex)) {
+        console.log('invalid coinbase transaction: ' + JSON.stringify(coinbaseTx));
+        return false;
+    }
+
+    //check for duplicate txIns. Each txIn can be included only once
+    const txIns: TxIn[] = _(aTransactions)
+        .map(tx => tx.txIns)
+        .flatten()
+        .value();
+
+    if (hasDuplicates(txIns)) {
+        return false;
+    }
+
+    // all but coinbase transactions
+    const normalTransactions: Transaction[] = aTransactions.slice(1);
+    return normalTransactions.map((tx) => validateTransaction(tx, aUnspentTxOuts))
+        .reduce((a, b) => (a && b), true);
+
+};
+
+const hasDuplicates = (txIns: TxIn[]): boolean => {
+    const groups = _.countBy(txIns, (txIn) => txIn.txOutId + txIn.txOutId);
+    return _(groups)
+        .map((value, key) => {
+            if (value > 1) {
+                console.log('duplicate txIn: ' + key);
+                return true;
+            } else {
+                return false;
+            }
+        })
+        .includes(true);
+};
+
+const validateCoinbaseTx = (transaction: Transaction, blockIndex: number): boolean => {
+    if (transaction == null) {
+        console.log('the first transaction in the block must be coinbase transaction');
+        return false;
+    }
+    if (getTransactionId(transaction) !== transaction.id) {
+        console.log('invalid coinbase tx id: ' + transaction.id);
+        return false;
+    }
+    if (transaction.txIns.length !== 1) {
+        console.log('one txIn must be specified in the coinbase transaction');
+        return;
+    }
+    if (transaction.txIns[0].txOutIndex !== blockIndex) {
+        console.log('the txIn signature in coinbase tx must be the block height');
+        return false;
+    }
+    if (transaction.txOuts.length !== 1) {
+        console.log('invalid number of txOuts in coinbase transaction');
+        return false;
+    }
+    if (transaction.txOuts[0].amount != COINBASE_AMOUNT) {
+        console.log('invalid coinbase amount in coinbase transaction');
+        return false;
+    }
+    return true;
+};
+
