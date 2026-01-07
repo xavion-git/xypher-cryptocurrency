@@ -110,7 +110,7 @@ const validateBlockTransactions = (aTransactions: Transaction[], aUnspentTxOuts:
 
     //check for duplicate txIns. Each txIn can be included only once
     const txIns: TxIn[] = _(aTransactions)
-        .map((tx: Transaction) => tx.txIns)
+        .map((tx) => tx.txIns)
         .flatten()
         .value();
 
@@ -126,7 +126,7 @@ const validateBlockTransactions = (aTransactions: Transaction[], aUnspentTxOuts:
 };
 
 const hasDuplicates = (txIns: TxIn[]): boolean => {
-    const groups = _.countBy(txIns, (txIn) => txIn.txOutId + txIn.txOutId);
+    const groups = _.countBy(txIns, (txIn) => txIn.txOutId + txIn.txOutIndex);
     return _(groups)
         .map((value, key) => {
             if (value > 1) {
@@ -160,7 +160,7 @@ const validateCoinbaseTx = (transaction: Transaction, blockIndex: number): boole
         console.log('invalid number of txOuts in coinbase transaction');
         return false;
     }
-    if (transaction.txOuts[0].amount != COINBASE_AMOUNT) {
+    if (transaction.txOuts[0].amount !== COINBASE_AMOUNT) {
         console.log('invalid coinbase amount in coinbase transaction');
         return false;
     }
@@ -184,7 +184,12 @@ const validateTxIn = (txIn: TxIn, transaction: Transaction, aUnspentTxOuts: Unsp
     
     const key = ec.keyFromPublic(address, 'hex');
 
-    return key.verify(transaction.id, txIn.signature);
+        const validSignature: boolean = key.verify(transaction.id, txIn.signature);
+    if (!validSignature) {
+        console.log('invalid txIn signature: %s txId: %s address: %s', txIn.signature, transaction.id, referencedUTxOut.address);
+        return false;
+    }
+    return true;
 };
 
 const getTxInAmount = (txIn: TxIn, aUnspentTxOuts: UnspentTxOut[]): number => {
@@ -361,7 +366,7 @@ const isValidAddress = (address: string): boolean => {
 };
 
 export {
-    processTransactions, signTxIn, getTransactionId,
+    processTransactions, signTxIn, getTransactionId, isValidAddress,
     UnspentTxOut, TxIn, TxOut, getCoinbaseTransaction, getPublicKey,
     Transaction
-}
+};
