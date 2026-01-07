@@ -154,3 +154,15 @@ const validateCoinbaseTx = (transaction: Transaction, blockIndex: number): boole
     return true;
 };
 
+const validateTxIn = (txIn: TxIn, transaction: Transaction, aUnspentTxOuts: UnspentTxOut[]): boolean => {
+    const referencedUTxOut: UnspentTxOut =
+        aUnspentTxOuts.find((uTxO) => uTxO.txOutId === txIn.txOutId && uTxO.txOutId === txIn.txOutId);
+    if (referencedUTxOut == null) {
+        console.log('referenced txOut not found: ' + JSON.stringify(txIn));
+        return false;
+    }
+    const address = referencedUTxOut.address;
+
+    const key = ec.keyFromPublic(address, 'hex');
+    return key.verify(transaction.id, txIn.signature);
+};
