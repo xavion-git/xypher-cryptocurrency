@@ -166,3 +166,48 @@ const validateTxIn = (txIn: TxIn, transaction: Transaction, aUnspentTxOuts: Unsp
     const key = ec.keyFromPublic(address, 'hex');
     return key.verify(transaction.id, txIn.signature);
 };
+
+const getTxInAmount = (txIn: TxIn, aUnspentTxOuts: UnspentTxOut[]): number => {
+    return findUnspentTxOut(txIn.txOutId, txIn.txOutIndex, aUnspentTxOuts).amount;
+};
+
+
+const findUnspentTxOut = (transactionId: string, index: number, aUnspentTxOuts: UnspentTxOut[]): UnspentTxOut => {
+    return aUnspentTxOuts.find((uTxO) => uTxO.txOutId === transactionId && uTxO.txOutIndex === index);
+};
+
+const getCoinbaseTransaction = (address: string, blockIndex: number): Transaction => {
+    const t = new Transaction();
+    const txIn: TxIn = new TxIn();
+    txIn.signature = "";
+    txIn.txOutId = "";
+    txIn.txOutIndex = blockIndex;
+
+    t.txIns = [txIn];
+    t.txOuts = [new TxOut(address, COINBASE_AMOUNT)];
+    t.id = getTransactionId(t);
+    return t;
+};
+
+const signTxIn = (transaction: Transaction, txInIndex: number,
+                  privateKey: string, aUnspentTxOuts: UnspentTxOut[]): string => {
+    const txIn: TxIn = transaction.txIns[txInIndex];
+
+    const dataToSign = transaction.id;
+    const referencedUnspentTxOut: UnspentTxOut = findUnspentTxOut(txIn.txOutId, txIn.txOutIndex, aUnspentTxOuts);
+    if(referencedUnspentTxOut == null) {
+        console.log('could not find referenced txOut');
+        throw Error();
+    }
+    const referencedAddress = referencedUnspentTxOut.address;
+
+    if (getPublicKey(privateKey) !== referencedAddress) {
+        console.log('trying to sign an input with private' +
+            ' key that does not match the address that is referenced in txIn');
+        throw Error();
+    }
+    const key = ec.keyFromPrivate(privateKey, 'hex');
+    const signature: string = toHexString(key.sign(dataToSign).toDER());
+
+    return signature;
+};
