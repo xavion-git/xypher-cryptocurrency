@@ -1,7 +1,8 @@
 import * as CryptoJS from 'crypto-js';
 import {broadcastLatest} from './p2p';
 import {hexToBinary} from './util';
-import {UnspentTxOut, Transaction, processTransactions} from './transaction';
+import {getCoinbaseTransaction, isValidAddress, processTransactions, Transaction, UnspentTxOut} from './transaction';
+import {createTransaction, getBalance, getPrivateFromWallet, getPublicFromWallet} from './wallet';
 
 class Block {
 
@@ -77,19 +78,38 @@ const getCurrentTimestamp = (): number => Math.round(new Date().getTime() / 1000
 const calculateHash = (index: number, previousHash: string, timestamp: number, data: string, difficulty: number, nonce: number): string =>
     CryptoJS.SHA256(index + previousHash + timestamp + data + difficulty + nonce).toString();
 
-const generateNextBlock = (blockData: Transaction[]) => {
+const generateRawNextBlock = (blockData: Transaction[]) => {
     const previousBlock: Block = getLatestBlock();
     const difficulty: number = getDifficulty(getBlockchain());
     console.log('difficulty: ' + difficulty);
     const nextIndex: number = previousBlock.index + 1; // index +1
     const nextTimestamp: number = getCurrentTimestamp();
     const newBlock: Block = findBlock(nextIndex, previousBlock.hash, nextTimestamp, blockData, difficulty);
-   if(addBlockToChain(newBlock)) {
+   if (addBlockToChain(newBlock)) {
     broadcastLatest();
     return newBlock;
    } else {
     return null;
    }
+};
+
+const generateNextBlock = () => {
+    const coinbaseTx: Transaction = getCoinbaseTransaction(getPublicFromWallet(), getLatestBlock().index + 1);
+    const blockData: Transaction[] = [coinbaseTx];
+    return generateRawNextBlock(blockData);
+};
+
+const generatenextBlockWithTransaction = (receiverAddress: string, amount: number) => {
+    if (!isValidAddress(receiverAddress)) {
+        throw Error('invalid address');
+    }
+    if (typeof amount !== 'number') {
+        throw Error('invalid amount');
+    }
+    const coinbaseTx: Transaction = getCoinbaseTransaction(getPublicFromWallet(), getLatestBlock().index + 1);
+    const tx: Transaction = createTransaction(receiverAddress, amount, getPrivateFromWallet(), unspentTxOuts);
+    const blockData: Transaction[] = [coinbaseTx, tx];
+    return generateRawNextBlock(blockData);
 };
 
 const findBlock = (index: number, previousHash: string, timestamp: number, data: Transaction[], difficulty: number): Block => {

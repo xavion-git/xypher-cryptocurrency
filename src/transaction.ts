@@ -265,14 +265,14 @@ const processTransactions = (aTransactions: Transaction[], aUnspentTxOuts: Unspe
     return updateUnspentTxOuts(aTransactions, aUnspentTxOuts);
 };
 
-const toHexString = (byteArray: Uint8Array): string => {
+const toHexString = (byteArray:number [] | Uint8Array): string => {
     return Array.from(byteArray, (byte: any) => {
         return ('0' + (byte & 0xFF).toString(16)).slice(-2);
     }).join('');
 };
 
 const getPublicKey = (aPrivateKey: string): string => {
-    return ec.keyFromPrivate(aPrivateKey, 'hex').getPublic().encode('hex');
+    return ec.keyFromPrivate(aPrivateKey, 'hex').getPublic().encode('hex', false);
 };
 
 const isValidTxInStructure = (txIn: TxIn): boolean => {
