@@ -90,9 +90,9 @@ const generateNextBlock = (blockData: Transaction[]) => {
    } else {
     return null;
    }
-}
+};
 
-const findBlock = (index: number, previousHash: string, timestamp: number, data: string, difficulty: number): Block => {
+const findBlock = (index: number, previousHash: string, timestamp: number, data: Transaction[], difficulty: number): Block => {
     let nonce = 0;
     while (true) {
         const hash: string = calculateHash(index, previousHash, timestamp, data, difficulty, nonce);
@@ -106,17 +106,12 @@ const findBlock = (index: number, previousHash: string, timestamp: number, data:
 const calculateHashForBlock = (block: Block): string =>
     calculateHash(block.index, block.previousHash, block.timestamp, block.data, block.difficulty, block.nonce);
 
-const addBlock = (newBlock: Block) => {
-    if (isValidNewBlock(newBlock, getLatestBlock())) {
-        blockchain.push(newBlock);
-    }
-};
 
 // Validation for integrity 
 const isValidNewBlock = (newBlock: Block, previousBlock: Block): boolean => {
     if (!isValidBlockStructure(newBlock)) {
-        console.log('invalid structure');
-        return false;
+        console.log('invalid block structure');
+        console.log(newBlock)
     }
     if (previousBlock.index + 1 !== newBlock.index) {
         console.log('invalid index');
@@ -182,7 +177,7 @@ const isValidBlockStructure = (block: Block): boolean => {
         && typeof block.hash === 'string'
         && typeof block.previousHash === 'string'
         && typeof block.timestamp === 'number'
-        && typeof block.data === 'string';
+        && typeof block.data === 'object';
 };
 
 // Validate the chain using the genesis Blockchain
@@ -203,10 +198,16 @@ const isValidChain = (blockchainToValidate: Block[]): boolean => {
     return true;
 };
 
-const addBlockToChain = (newBlock: Block) => {
+const addBlockToChain = (newBlock: Block): boolean => {
     if (isValidNewBlock(newBlock, getLatestBlock())) {
-        blockchain.push(newBlock);
-        return true;
+        const retVal: UnspentTxOut[] = processTransactions(newBlock.data, unspentTxOuts, newBlock.index);
+        if (retVal === null) {
+            return false;
+        } else {
+            blockchain.push(newBlock);
+            unspentTxOuts = retVal;
+            return true;
+        }
     }
     return false;
 };
