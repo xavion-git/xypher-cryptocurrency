@@ -1,6 +1,7 @@
 import * as CryptoJS from 'crypto-js';
 import {broadcastLatest} from './p2p';
 import {hexToBinary} from './util';
+import {UnspentTxOut, Transaction, processTransactions} from './transaction';
 
 class Block {
 
@@ -8,11 +9,11 @@ class Block {
     public hash: string;
     public previousHash: string;
     public timestamp: number;
-    public data: string;
+    public data: Transaction[];
     public difficulty: number;
     public nonce: number;
 
-    constructor(index: number, hash: string, previousHash: string, timestamp: number, data: string, difficulty: number, nonce: number){
+    constructor(index: number, hash: string, previousHash: string, timestamp: number, data: Transaction[], difficulty: number, nonce: number){
         this.index = index;
         this.previousHash = previousHash;
         this.timestamp = timestamp;
@@ -27,11 +28,13 @@ class Block {
 // The GenesisBlock is the first block in the block chain and it is the only block with no previousHash 
 // So needed to hard code it in
 const genesisBlock: Block = new Block(
-    0, '91a73664bc84c0baa1fc75ea6e4aa6d1d20c5df664c724e3159aefc2e1186627', '', 1465154705, 'my genesis block!!', 0, 0
+    0, '91a73664bc84c0baa1fc75ea6e4aa6d1d20c5df664c724e3159aefc2e1186627', '', 1465154705, [], 0, 0
 );
 
 //storing the block in memory 
 let blockchain: Block[] = [genesisBlock];
+
+let UnspentTxOuts: UnspentTxOut[] = [];
 
 const getBlockchain = (): Block[] => blockchain;
 
@@ -74,16 +77,19 @@ const getCurrentTimestamp = (): number => Math.round(new Date().getTime() / 1000
 const calculateHash = (index: number, previousHash: string, timestamp: number, data: string, difficulty: number, nonce: number): string =>
     CryptoJS.SHA256(index + previousHash + timestamp + data + difficulty + nonce).toString();
 
-const generateNextBlock = (blockData: string) => {
+const generateNextBlock = (blockData: Transaction[]) => {
     const previousBlock: Block = getLatestBlock();
     const difficulty: number = getDifficulty(getBlockchain());
     console.log('difficulty: ' + difficulty);
     const nextIndex: number = previousBlock.index + 1; // index +1
     const nextTimestamp: number = getCurrentTimestamp();
     const newBlock: Block = findBlock(nextIndex, previousBlock.hash, nextTimestamp, blockData, difficulty);
-    addBlock(newBlock);
+   if(addBlockToChain(newBlock)) {
     broadcastLatest();
     return newBlock;
+   } else {
+    return null;
+   }
 }
 
 const findBlock = (index: number, previousHash: string, timestamp: number, data: string, difficulty: number): Block => {
