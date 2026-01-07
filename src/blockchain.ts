@@ -41,7 +41,7 @@ const getLatestBlock = (): Block => blockchain[blockchain.length - 1];
 const BLOCK_GENERATION_INTERVAL: number = 10;
 
 // in blocks
-const DIFFICULTY_ADJUSTMET_INTERVAL: number = 10;
+const DIFFICULTY_ADJUSTMENT_INTERVAL: number = 10;
 
 const getDifficulty = (aBlockchain: Block[]): number => {
     const latestBlock: Block = aBlockchain[blockchain.length - 1];
@@ -158,8 +158,14 @@ const hashMatchesBlockContent = (block: Block): boolean => {
 };
 
 const hashMatchesDifficulty = (hash: string, difficulty: number): boolean => {
-    const hashInBinary: string = hexToBinary(hash);
-    const requiredPrefix: string = '0'.repeat(difficulty);
+    const hashInBinary = hexToBinary(hash);
+
+    if (hashInBinary === null) {
+        return false;
+    }
+
+    const requiredPrefix = '0'.repeat(difficulty);
+    
     return hashInBinary.startsWith(requiredPrefix);
 };
 

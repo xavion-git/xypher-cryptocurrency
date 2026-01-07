@@ -44,3 +44,16 @@ An essential responsibility of each node is to share and synchronize the blockch
 - If a node receives a block with an index higher than its current latest block, it either appends the block to its chain or requests the full blockchain to resolve any discrepancies.
 
 ![pop-up](./img/Screenshot%202026-01-05%20172831.png)
+
+### Proof of Work Puzzle
+So far in the project we have made a simiple toy block chain that could add a block without cost. `Proof-of-work`can add some complexities before the block is added to the blockchain. In which solving this puzzle is known as **mining**.
+#### Difficulty/Nonce
+To understand why we need difficulty and nonce we will look at what the `Proof-of-work` puzzle is doing.
+
+To simplify the `Proof-of-work` puzzle is to find a block hash hat has a specific number of zeros prefixing it. 
+
+The **difficulty** property defines the number of zeros prefixing the block hash needs. In order for the block to be validated the zeros are checked from binary of the hash. 
+
+![pop-up](./img/Screenshot%202026-01-06%20192710.png)
+
+To produce a hash that meets the difficulty requirement, we need a way to generate many different hashes from the same block data. This is achieved by changing the nonce value. Since SHA-256 is a cryptographic hash function, even a small change to the block’s contents results in a completely different hash. Mining is essentially the process of repeatedly adjusting the nonce and recalculating the hash until one is found that satisfies the difficulty target.
