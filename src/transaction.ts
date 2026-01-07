@@ -51,12 +51,18 @@ class Transaction {
 
     public txIns: TxIn[];
     public txOuts: TxOut[];
+
+    constructor(id: string, txIns: TxIn[], txOusts: TxOut []) {
+        this.id = id,
+        this.txIns = txIns,
+        this.txOuts = txOusts
+    }
 }
 
 const getTransactionId = (transaction: Transaction): string => {
     const txInContent: string = transaction.txIns
-    .map((txIn: TxIn) => TxOut.address + TxOut.amount)
-    .reduce((a, b) => a + b, '');
+        .map((txIn: TxIn) => txIn.txOutId + txIn.txOutIndex)
+        .reduce((a, b) => a + b, '');
 
     const txOutContent: string = transaction.txOuts
         .map((txOut: TxOut) => txOut.address + txOut.amount)
