@@ -1,5 +1,5 @@
 import * as  bodyParser from 'body-parser';
-import express from 'express';
+import express, { NextFunction } from 'express';
 import { Request, Response } from 'express';
 
 import {Block, generateNextBlock, getBlockchain} from './blockchain';
@@ -12,7 +12,7 @@ const initHttpServer = (myHttpPort: number) => {
     const app = express();
     app.use(bodyParser.json());
 
-    app.use((err, req, res, next) => {
+    app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         if (err) {
             res.status(400).send(err.message)
         }
@@ -22,7 +22,7 @@ const initHttpServer = (myHttpPort: number) => {
         res.send(getBlockchain());
     });
     app.post('/mineBlock', (req: Request, res: Response) => {
-        const newBlock: Block = generateNextBlock(req.body.data);
+        const newBlock: Block | null = generateNextBlock(req.body.data);
         if (newBlock === null) {
             res.status(400).send('could not generate block');
         } else {
