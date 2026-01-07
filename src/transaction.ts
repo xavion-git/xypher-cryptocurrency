@@ -56,4 +56,34 @@ const getTransactionId = (transaction: Transaction): string => {
         .reduce((a, b) => a + b, '');
 
     return CryptoJS.SHA256(txInContent + txOutContent).toString();
-}
+};
+
+const validateTransaction = (transaction: Transaction, aUnspentTxOuts: UnspentTxOut[]): boolean => {
+     if (getTransactionId(transaction) !== transaction.id) {
+        console.log('invalid tx id: ' + transaction.id);
+        return false;
+    }
+    const hasValidTxIns: boolean = transaction.txIns
+        .map((txIn) => validateTxIn(txIn, transaction, aUnspentTxOuts))
+        .reduce((a, b) => a && b, true);
+
+    if (!hasValidTxIns) {
+        console.log('some of the txIns are invalid in tx: ' + transaction.id);
+        return false;
+    }
+
+    const totalTxInValues: number = transaction.txIns
+        .map((txIn) => getTxInAmount(txIn, aUnspentTxOuts))
+        .reduce((a, b) => (a + b), 0);
+
+    const totalTxOutValues: number = transaction.txOuts
+        .map((txOut) => txOut.amount)
+        .reduce((a, b) => (a + b), 0);
+
+    if (totalTxOutValues !== totalTxInValues) {
+        console.log('totalTxOutValues !== totalTxInValues in tx: ' + transaction.id);
+        return false;
+    }
+
+    return true;
+};
