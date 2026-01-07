@@ -12,12 +12,22 @@ const initHttpServer = (myHttpPort: number) => {
     const app = express();
     app.use(bodyParser.json());
 
+    app.use((err, req, res, next) => {
+        if (err) {
+            res.status(400).send(err.message)
+        }
+    });
+
     app.get('/blocks', (req: Request, res: Response) => {
         res.send(getBlockchain());
     });
     app.post('/mineBlock', (req: Request, res: Response) => {
         const newBlock: Block = generateNextBlock(req.body.data);
-        res.send(newBlock);
+        if (newBlock === null) {
+            res.status(400).send('could not generate block');
+        } else {
+            res.send(newBlock);
+        }
     });
     app.get('/peers', (req: Request, res: Response) => {
         res.send(getSockets().map((s: any) => s._socket.remoteAddress + ':' + s._socket.remotePort));
