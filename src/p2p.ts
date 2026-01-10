@@ -90,7 +90,7 @@ const initMessageHandler = (ws: WebSocket) => {
                             // if no error is thrown, transaction was indeed added to the pool
                             // let's broadcast transaction pool
                             broadCastTransactionPool();
-                        } catch (e) {
+                        } catch (e: any) {
                             console.log(e.message);
                         }
                     });

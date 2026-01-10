@@ -108,7 +108,7 @@ const initHttpServer = (myHttpPort: number) => {
             }
             const resp = sendTransaction(address, amount);
             res.send(resp);
-        } catch (e) {
+        } catch (e: any) {
             console.log(e.message);
             res.status(400).send(e.message);
         }

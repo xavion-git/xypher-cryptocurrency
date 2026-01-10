@@ -1,8 +1,10 @@
 import * as CryptoJS from 'crypto-js';
-import {broadcastLatest} from './p2p';
+import _ from 'lodash';
+import {broadcastLatest, broadCastTransactionPool} from './p2p';
 import {hexToBinary} from './util';
 import {getCoinbaseTransaction, isValidAddress, processTransactions, Transaction, UnspentTxOut} from './transaction';
-import {createTransaction, findUnspentTxOuts , getBalance, getPrivateFromWallet, getPublicFromWallet} from './wallet';
+import {addToTransactionPool, getTransactionPool, updateTransactionPool} from './transactionPool';
+import {createTransaction, findUnspentTxOuts, getBalance, getPrivateFromWallet, getPublicFromWallet} from './wallet';
 
 class Block {
 
