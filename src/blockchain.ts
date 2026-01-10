@@ -46,7 +46,13 @@ const genesisBlock: Block = new Block(
 //storing the block in memory 
 let blockchain: Block[] = [genesisBlock];
 
-let unspentTxOuts: UnspentTxOut[] = processTransactions(blockchain[0].data, [], 0);
+const initialUnspentTxOuts = processTransactions(blockchain[0].data, [], 0);
+
+if (initialUnspentTxOuts === null) {
+    throw new Error('Failed to initialize unspent transaction outputs');
+}
+
+let unspentTxOuts: UnspentTxOut[] = initialUnspentTxOuts;
 
 const getBlockchain = (): Block[] => blockchain;
 
@@ -130,7 +136,7 @@ const generatenextBlockWithTransaction = (receiverAddress: string, amount: numbe
         throw Error('invalid amount');
     }
     const coinbaseTx: Transaction = getCoinbaseTransaction(getPublicFromWallet(), getLatestBlock().index + 1);
-    const tx: Transaction = createTransaction(receiverAddress, amount, getPrivateFromWallet(), unspentTxOuts);
+   const tx: Transaction = createTransaction(receiverAddress,amount,getPrivateFromWallet(),unspentTxOuts,getTransactionPool());
     const blockData: Transaction[] = [coinbaseTx, tx];
     return generateRawNextBlock(blockData);
 };
@@ -236,7 +242,7 @@ const isValidBlockStructure = (block: Block): boolean => {
 };
 
 // Validate the chain using the genesis Blockchain
-const isValidChain = (blockchainToValidate: Block[]): UnspentTxOut[] => {
+const isValidChain = (blockchainToValidate: Block[]): UnspentTxOut[] | null => {
     console.log('isValidChain:');
     console.log(JSON.stringify(blockchainToValidate));
     const isValidGenesis = (block: Block): boolean => {
@@ -250,7 +256,7 @@ const isValidChain = (blockchainToValidate: Block[]): UnspentTxOut[] => {
     Validate each block in the chain. The block is valid if the block structure is valid
       and the transaction are valid
      */
-    let aUnspentTxOuts: UnspentTxOut[] = [];
+    let aUnspentTxOuts: UnspentTxOut[] | null = [];
 
     for (let i = 0; i < blockchainToValidate.length; i++) {
         const currentBlock: Block = blockchainToValidate[i];
@@ -285,14 +291,22 @@ const addBlockToChain = (newBlock: Block): boolean => {
 
 // Initial Conflicts so the longer chain dominates
 const replaceChain = (newBlocks: Block[]) => {
-        const aUnspentTxOuts = isValidChain(newBlocks);
-    const validChain: boolean = aUnspentTxOuts !== null;
-        if (validChain &&
-        getAccumulatedDifficulty(newBlocks) > getAccumulatedDifficulty(getBlockchain())) {
+
+    const aUnspentTxOuts = isValidChain(newBlocks);
+
+    if (aUnspentTxOuts === null) {
+        console.log('Received blockchain invalid');
+        return;
+    }
+
+    if (
+        getAccumulatedDifficulty(newBlocks) >
+        getAccumulatedDifficulty(getBlockchain())
+    ) {
         console.log('Received blockchain is valid. Replacing current blockchain with received blockchain');
         blockchain = newBlocks;
         setUnspentTxOuts(aUnspentTxOuts);
-        updateTransactionPool(unspentTxOuts);
+        updateTransactionPool(aUnspentTxOuts);
         broadcastLatest();
     } else {
         console.log('Received blockchain invalid');
