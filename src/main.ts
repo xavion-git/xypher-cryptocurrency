@@ -7,10 +7,14 @@ import {
     generatenextBlockWithTransaction,
     generateRawNextBlock,
     getAccountBalance,
-    getBlockchain
+    getBlockchain,
+    getMyUnspentTransactionOutputs,
+    getUnspentTxOuts,
+    sendTransaction
 } from './blockchain';
 import { connectToPeers, getSockets, initP2PServer } from './p2p';
-import { initWallet } from './wallet';
+import {getTransactionPool} from './transactionPool';
+import {getPublicFromWallet, initWallet} from './wallet';
 
 const httpPort: number = parseInt(process.env.HTTP_PORT ?? '3001', 10);
 const p2pPort: number = parseInt(process.env.P2P_PORT ?? '6001', 10);

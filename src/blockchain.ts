@@ -266,31 +266,44 @@ const isValidChain = (blockchainToValidate: Block[]): UnspentTxOut[] => {
 
 const addBlockToChain = (newBlock: Block): boolean => {
     if (isValidNewBlock(newBlock, getLatestBlock())) {
-        const retVal = processTransactions(newBlock.data, unspentTxOuts, newBlock.index);
+        const retVal = processTransactions(newBlock.data, getUnspentTxOuts(), newBlock.index);
             if (retVal === null) {
+                console.log('block is not valid in terms of transactions');
                 return false;
-            }
+            } else {
+                blockchain.push(newBlock);
+                setUnspentTxOuts(retVal);
+                updateTransactionPool(unspentTxOuts);
+                return true;
 
-            blockchain.push(newBlock);
-            unspentTxOuts = retVal;
-        return true;
+            }
     }
     return false;
 };
 
 // Initial Conflicts so the longer chain dominates
 const replaceChain = (newBlocks: Block[]) => {
-        if (isValidChain(newBlocks) &&
+        const aUnspentTxOuts = isValidChain(newBlocks);
+    const validChain: boolean = aUnspentTxOuts !== null;
+        if (validChain &&
         getAccumulatedDifficulty(newBlocks) > getAccumulatedDifficulty(getBlockchain())) {
         console.log('Received blockchain is valid. Replacing current blockchain with received blockchain');
         blockchain = newBlocks;
+        setUnspentTxOuts(aUnspentTxOuts);
+        updateTransactionPool(unspentTxOuts);
         broadcastLatest();
     } else {
         console.log('Received blockchain invalid');
     }
 };
+
+const handleReceivedTransaction = (transaction: Transaction) => {
+    addToTransactionPool(transaction, getUnspentTxOuts());
+};
+
 export {
-    Block, getBlockchain, getLatestBlock,
+    Block, getBlockchain, getUnspentTxOuts, getLatestBlock, sendTransaction,
     generateRawNextBlock, generateNextBlock, generatenextBlockWithTransaction,
+    handleReceivedTransaction, getMyUnspentTransactionOutputs,
     getAccountBalance, isValidBlockStructure, replaceChain, addBlockToChain
 };
