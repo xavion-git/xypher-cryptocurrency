@@ -33,6 +33,25 @@ const initHttpServer = (myHttpPort: number) => {
         res.send(getBlockchain());
     });
 
+     // Get a specific block
+    app.get('/block/:hash', (req: Request, res: Response) => {
+        const block = getBlockchain().find(b => b.hash === req.params.hash);
+        if (block) {
+            res.send(block);
+        } else {
+            res.status(404).send('Block not found');
+        }
+    });
+
+      app.post('/mineBlock', (req: Request, res: Response) => {
+        const newBlock: Block | null = generateNextBlock();
+        if (newBlock === null) {
+            res.status(400).send('could not generate block');
+        } else {
+            res.send(newBlock);
+        }
+    });
+
     // Mine a raw block
     app.post('/mineRawBlock', (req: Request, res: Response) => {
         const data = req.body.data;
@@ -52,6 +71,7 @@ const initHttpServer = (myHttpPort: number) => {
     // Mine a block with transaction
     app.post('/mineTransaction', (req: Request, res: Response) => {
         const { address, amount } = req.body;
+        console.log(req.body);
         if (!address || amount == null) {
             res.status(400).send('address or amount missing');
             return;
