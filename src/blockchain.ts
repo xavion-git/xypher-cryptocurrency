@@ -234,21 +234,34 @@ const isValidBlockStructure = (block: Block): boolean => {
 };
 
 // Validate the chain using the genesis Blockchain
-const isValidChain = (blockchainToValidate: Block[]): boolean => {
+const isValidChain = (blockchainToValidate: Block[]): UnspentTxOut[] => {
+    console.log('isValidChain:');
+    console.log(JSON.stringify(blockchainToValidate));
     const isValidGenesis = (block: Block): boolean => {
         return JSON.stringify(block) === JSON.stringify(genesisBlock);
     };
 
     if (!isValidGenesis(blockchainToValidate[0])) {
-        return false;
+        return null;
     }
+    /*
+    Validate each block in the chain. The block is valid if the block structure is valid
+      and the transaction are valid
+     */
+    let aUnspentTxOuts: UnspentTxOut[] = [];
 
-    for (let i = 1; i < blockchainToValidate.length; i++) {
-        if (!isValidNewBlock(blockchainToValidate[i], blockchainToValidate[i - 1])) {
-            return false;
+    for (let i = 0; i < blockchainToValidate.length; i++) {
+        const currentBlock: Block = blockchainToValidate[i];
+        if (i !== 0 && !isValidNewBlock(blockchainToValidate[i], blockchainToValidate[i - 1])) {
+            return null;
+        }
+        aUnspentTxOuts = processTransactions(currentBlock.data, aUnspentTxOuts, currentBlock.index);
+        if (aUnspentTxOuts === null) {
+            console.log('invalid transactions in blockchain');
+            return null;
         }
     }
-    return true;
+    return aUnspentTxOuts;
 };
 
 const addBlockToChain = (newBlock: Block): boolean => {
