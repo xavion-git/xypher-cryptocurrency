@@ -1,6 +1,11 @@
 import WebSocket from 'ws';
 import {Server} from 'ws';
-import {addBlockToChain, Block, getBlockchain, getLatestBlock, isValidBlockStructure, replaceChain} from './blockchain';
+import {
+    addBlockToChain, Block, getBlockchain, getLatestBlock, handleReceivedTransaction, isValidBlockStructure,
+    replaceChain
+} from './blockchain';
+import {Transaction} from './transaction';
+import {getTransactionPool} from './transactionPool';
 
 const sockets: WebSocket[] = [];
 

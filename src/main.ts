@@ -148,6 +148,10 @@ const initHttpServer = (myHttpPort: number) => {
         connectToPeers(peer);
         res.send();
     });
+    app.post('/stop', (req, res) => {
+        res.send({'msg' : 'stopping server'});
+        process.exit();
+    });
 
     // Start HTTP server
     app.listen(myHttpPort, () => {
