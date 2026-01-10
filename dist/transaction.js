@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Transaction = exports.getPublicKey = exports.getCoinbaseTransaction = exports.TxOut = exports.TxIn = exports.UnspentTxOut = exports.isValidAddress = exports.getTransactionId = exports.signTxIn = exports.processTransactions = void 0;
+exports.Transaction = exports.hasDuplicates = exports.getPublicKey = exports.getCoinbaseTransaction = exports.TxOut = exports.TxIn = exports.UnspentTxOut = exports.validateTransaction = exports.isValidAddress = exports.getTransactionId = exports.signTxIn = exports.processTransactions = void 0;
 const crypto_js_1 = __importDefault(require("crypto-js"));
 const ecdsa = __importStar(require("elliptic"));
 const lodash_1 = __importDefault(require("lodash"));
@@ -85,6 +85,9 @@ const getTransactionId = (transaction) => {
 };
 exports.getTransactionId = getTransactionId;
 const validateTransaction = (transaction, aUnspentTxOuts) => {
+    if (!isValidTransactionStructure(transaction)) {
+        return false;
+    }
     if (getTransactionId(transaction) !== transaction.id) {
         console.log('invalid tx id: ' + transaction.id);
         return false;
@@ -108,6 +111,7 @@ const validateTransaction = (transaction, aUnspentTxOuts) => {
     }
     return true;
 };
+exports.validateTransaction = validateTransaction;
 const validateBlockTransactions = (aTransactions, aUnspentTxOuts, blockIndex) => {
     const coinbaseTx = aTransactions[0];
     if (!validateCoinbaseTx(coinbaseTx, blockIndex)) {
@@ -141,6 +145,7 @@ const hasDuplicates = (txIns) => {
     })
         .includes(true);
 };
+exports.hasDuplicates = hasDuplicates;
 const validateCoinbaseTx = (transaction, blockIndex) => {
     if (transaction == null) {
         console.log('the first transaction in the block must be coinbase transaction');
@@ -235,9 +240,6 @@ const updateUnspentTxOuts = (aTransactions, aUnspentTxOuts) => {
     return resultingUnspentTxOuts;
 };
 const processTransactions = (aTransactions, aUnspentTxOuts, blockIndex) => {
-    if (!isValidTransactionsStructure(aTransactions)) {
-        return null;
-    }
     if (!validateBlockTransactions(aTransactions, aUnspentTxOuts, blockIndex)) {
         console.log('invalid block transactions');
         return null;
@@ -295,11 +297,6 @@ const isValidTxOutStructure = (txOut) => {
     else {
         return true;
     }
-};
-const isValidTransactionsStructure = (transactions) => {
-    return transactions
-        .map(isValidTransactionStructure)
-        .reduce((a, b) => (a && b), true);
 };
 const isValidTransactionStructure = (transaction) => {
     if (typeof transaction.id !== 'string') {

@@ -40,6 +40,7 @@ const bodyParser = __importStar(require("body-parser"));
 const express_1 = __importDefault(require("express"));
 const blockchain_1 = require("./blockchain");
 const p2p_1 = require("./p2p");
+const transactionPool_1 = require("./transactionPool");
 const wallet_1 = require("./wallet");
 const httpPort = parseInt(process.env.HTTP_PORT ?? '3001', 10);
 const p2pPort = parseInt(process.env.P2P_PORT ?? '6001', 10);
@@ -58,6 +59,31 @@ const initHttpServer = (myHttpPort) => {
     // Get blockchain
     app.get('/blocks', (req, res) => {
         res.send((0, blockchain_1.getBlockchain)());
+    });
+    app.get('/unspentTransactionOutputs', (req, res) => {
+        res.send((0, blockchain_1.getUnspentTxOuts)());
+    });
+    app.get('/myUnspentTransactionOutputs', (req, res) => {
+        res.send((0, blockchain_1.getMyUnspentTransactionOutputs)());
+    });
+    // Get a specific block
+    app.get('/block/:hash', (req, res) => {
+        const block = (0, blockchain_1.getBlockchain)().find(b => b.hash === req.params.hash);
+        if (block) {
+            res.send(block);
+        }
+        else {
+            res.status(404).send('Block not found');
+        }
+    });
+    app.post('/mineBlock', (req, res) => {
+        const newBlock = (0, blockchain_1.generateNextBlock)();
+        if (newBlock === null) {
+            res.status(400).send('could not generate block');
+        }
+        else {
+            res.send(newBlock);
+        }
     });
     // Mine a raw block
     app.post('/mineRawBlock', (req, res) => {
@@ -91,10 +117,32 @@ const initHttpServer = (myHttpPort) => {
             res.status(400).send(e.message);
         }
     });
+    app.post('/sendTransaction', (req, res) => {
+        try {
+            const address = req.body.address;
+            const amount = req.body.amount;
+            if (address === undefined || amount === undefined) {
+                throw Error('invalid address or amount');
+            }
+            const resp = (0, blockchain_1.sendTransaction)(address, amount);
+            res.send(resp);
+        }
+        catch (e) {
+            console.log(e.message);
+            res.status(400).send(e.message);
+        }
+    });
+    app.get('/transactionPool', (req, res) => {
+        res.send((0, transactionPool_1.getTransactionPool)());
+    });
     // Get balance
     app.get('/balance', (req, res) => {
         const balance = (0, blockchain_1.getAccountBalance)();
         res.send({ balance });
+    });
+    app.get('/address', (req, res) => {
+        const address = (0, wallet_1.getPublicFromWallet)();
+        res.send({ 'address': address });
     });
     // List peers
     app.get('/peers', (req, res) => {
@@ -109,6 +157,10 @@ const initHttpServer = (myHttpPort) => {
         }
         (0, p2p_1.connectToPeers)(peer);
         res.send();
+    });
+    app.post('/stop', (req, res) => {
+        res.send({ 'msg': 'stopping server' });
+        process.exit();
     });
     // Start HTTP server
     app.listen(myHttpPort, () => {

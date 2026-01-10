@@ -3,15 +3,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSockets = exports.initP2PServer = exports.broadcastLatest = exports.connectToPeers = void 0;
+exports.getSockets = exports.initP2PServer = exports.broadCastTransactionPool = exports.broadcastLatest = exports.connectToPeers = void 0;
 const ws_1 = __importDefault(require("ws"));
 const blockchain_1 = require("./blockchain");
+const transactionPool_1 = require("./transactionPool");
 const sockets = [];
 var MessageType;
 (function (MessageType) {
     MessageType[MessageType["QUERY_LATEST"] = 0] = "QUERY_LATEST";
     MessageType[MessageType["QUERY_ALL"] = 1] = "QUERY_ALL";
     MessageType[MessageType["RESPONSE_BLOCKCHAIN"] = 2] = "RESPONSE_BLOCKCHAIN";
+    MessageType[MessageType["QUERY_TRANSACTION_POOL"] = 3] = "QUERY_TRANSACTION_POOL";
+    MessageType[MessageType["RESPONSE_TRANSACTION_POOL"] = 4] = "RESPONSE_TRANSACTION_POOL";
 })(MessageType || (MessageType = {}));
 class Message {
 }
@@ -30,6 +33,9 @@ const initConnection = (ws) => {
     initMessageHandler(ws);
     initErrorHandler(ws);
     write(ws, queryChainLengthMsg());
+    setTimeout(() => {
+        broadcast(queryTransactionPoolMsg());
+    }, 500);
 };
 const JSONToObject = (data) => {
     try {
@@ -42,28 +48,53 @@ const JSONToObject = (data) => {
 };
 const initMessageHandler = (ws) => {
     ws.on('message', (data) => {
-        const message = JSONToObject(data);
-        if (message === null) {
-            console.log('could not parse received JSON message: ' + data);
-            return;
-        }
-        console.log('Received message' + JSON.stringify(message));
-        switch (message.type) {
-            case MessageType.QUERY_LATEST:
-                write(ws, responseLatestMsg());
-                break;
-            case MessageType.QUERY_ALL:
-                write(ws, responseChainMsg());
-                break;
-            case MessageType.RESPONSE_BLOCKCHAIN:
-                const receivedBlocks = JSONToObject(message.data);
-                if (receivedBlocks === null) {
-                    console.log('invalid blocks received:');
-                    console.log(message.data);
+        try {
+            const message = JSONToObject(data);
+            if (message === null) {
+                console.log('could not parse received JSON message: ' + data);
+                return;
+            }
+            console.log('Received message: %s', JSON.stringify(message));
+            switch (message.type) {
+                case MessageType.QUERY_LATEST:
+                    write(ws, responseLatestMsg());
                     break;
-                }
-                handleBlockchainResponse(receivedBlocks);
-                break;
+                case MessageType.QUERY_ALL:
+                    write(ws, responseChainMsg());
+                    break;
+                case MessageType.RESPONSE_BLOCKCHAIN:
+                    const receivedBlocks = JSONToObject(message.data);
+                    if (receivedBlocks === null) {
+                        console.log('invalid blocks received: %s', JSON.stringify(message.data));
+                        break;
+                    }
+                    handleBlockchainResponse(receivedBlocks);
+                    break;
+                case MessageType.QUERY_TRANSACTION_POOL:
+                    write(ws, responseTransactionPoolMsg());
+                    break;
+                case MessageType.RESPONSE_TRANSACTION_POOL:
+                    const receivedTransactions = JSONToObject(message.data);
+                    if (receivedTransactions === null) {
+                        console.log('invalid transaction received: %s', JSON.stringify(message.data));
+                        break;
+                    }
+                    receivedTransactions.forEach((transaction) => {
+                        try {
+                            (0, blockchain_1.handleReceivedTransaction)(transaction);
+                            // if no error is thrown, transaction was indeed added to the pool
+                            // let's broadcast transaction pool
+                            broadCastTransactionPool();
+                        }
+                        catch (e) {
+                            console.log(e.message);
+                        }
+                    });
+                    break;
+            }
+        }
+        catch (e) {
+            console.log(e);
         }
     });
 };
@@ -77,6 +108,14 @@ const responseChainMsg = () => ({
 const responseLatestMsg = () => ({
     'type': MessageType.RESPONSE_BLOCKCHAIN,
     'data': JSON.stringify([(0, blockchain_1.getLatestBlock)()])
+});
+const queryTransactionPoolMsg = () => ({
+    'type': MessageType.QUERY_TRANSACTION_POOL,
+    'data': null
+});
+const responseTransactionPoolMsg = () => ({
+    'type': MessageType.RESPONSE_TRANSACTION_POOL,
+    'data': JSON.stringify((0, transactionPool_1.getTransactionPool)())
 });
 const initErrorHandler = (ws) => {
     const closeConnection = (myWs) => {
@@ -132,4 +171,8 @@ const connectToPeers = (newPeer) => {
     });
 };
 exports.connectToPeers = connectToPeers;
+const broadCastTransactionPool = () => {
+    broadcast(responseTransactionPoolMsg());
+};
+exports.broadCastTransactionPool = broadCastTransactionPool;
 //# sourceMappingURL=p2p.js.map

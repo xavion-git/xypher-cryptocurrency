@@ -1,6 +1,6 @@
 import * as bodyParser from 'body-parser';
 import express, { NextFunction, Request, Response } from 'express';
-
+import _ from 'lodash';
 import {
     Block,
     generateNextBlock,
@@ -13,6 +13,7 @@ import {
     sendTransaction
 } from './blockchain';
 import { connectToPeers, getSockets, initP2PServer } from './p2p';
+import { UnspentTxOut } from './transaction';
 import {getTransactionPool} from './transactionPool';
 import {getPublicFromWallet, initWallet} from './wallet';
 
@@ -54,6 +55,21 @@ const initHttpServer = (myHttpPort: number) => {
             res.status(404).send('Block not found');
         }
     });
+
+    app.get('/transaction/:id', (req, res) => {
+        const tx = _(getBlockchain())
+            .map((blocks) => blocks.data)
+            .flatten()
+            .find({'id': req.params.id});
+        res.send(tx);
+    });
+
+    app.get('/address/:address', (req, res) => {
+        const unspentTxOuts: UnspentTxOut[] =
+            _.filter(getUnspentTxOuts(), (uTxO) => uTxO.address === req.params.address)
+        res.send({'unspentTxOuts': unspentTxOuts});
+    });
+
 
       app.post('/mineBlock', (req: Request, res: Response) => {
         const newBlock: Block | null = generateNextBlock();
