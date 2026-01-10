@@ -37,6 +37,14 @@ const initHttpServer = (myHttpPort: number) => {
         res.send(getBlockchain());
     });
 
+       app.get('/unspentTransactionOutputs', (req: Request, res: Response) => {
+        res.send(getUnspentTxOuts());
+    });
+
+    app.get('/myUnspentTransactionOutputs', (req: Request, res: Response) => {
+        res.send(getMyUnspentTransactionOutputs());
+    });
+
      // Get a specific block
     app.get('/block/:hash', (req: Request, res: Response) => {
         const block = getBlockchain().find(b => b.hash === req.params.hash);
@@ -90,10 +98,35 @@ const initHttpServer = (myHttpPort: number) => {
         }
     });
 
+     app.post('/sendTransaction', (req: Request, res: Response) => {
+        try {
+            const address = req.body.address;
+            const amount = req.body.amount;
+
+            if (address === undefined || amount === undefined) {
+                throw Error('invalid address or amount');
+            }
+            const resp = sendTransaction(address, amount);
+            res.send(resp);
+        } catch (e) {
+            console.log(e.message);
+            res.status(400).send(e.message);
+        }
+    });
+
+    app.get('/transactionPool', (req: Request, res: Response) => {
+        res.send(getTransactionPool());
+    });
+
     // Get balance
     app.get('/balance', (req: Request, res: Response) => {
         const balance: number = getAccountBalance();
         res.send({ balance });
+    });
+
+    app.get('/address', (req, res) => {
+        const address: string = getPublicFromWallet();
+        res.send({'address': address});
     });
 
     // List peers
