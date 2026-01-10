@@ -4,7 +4,7 @@ import _ from 'lodash';
 import {getPublicKey, getTransactionId, signTxIn, Transaction, TxIn, TxOut, UnspentTxOut} from './transaction';
 
 const EC = new ec('secp256k1');
-const privateKeyLocation = 'node/wallet/private_key';
+const privateKeyLocation = process.env.PRIVATE_KEY || 'node/wallet/private_key';
 
 const getPrivateFromWallet = (): string => {
     const buffer = readFileSync(privateKeyLocation, 'utf8');
@@ -31,8 +31,14 @@ const initWallet = () => {
     const newPrivateKey = generatePrivateKey();
 
     writeFileSync(privateKeyLocation, newPrivateKey);
-    console.log('new wallet with private key created');
+    console.log('new wallet with private key created to : &s', privateKeyLocation);
 };
+
+const deleteWallet = () => {
+    if(existsSync(privateKeyLocation)) {
+        unlinkSync(privateKeyLocation);
+    }
+}
 
 const getBalance = (address: string, unspentTxOuts: UnspentTxOut[]): number => {
     return _(unspentTxOuts)
