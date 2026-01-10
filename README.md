@@ -57,3 +57,31 @@ The **difficulty** property defines the number of zeros prefixing the block hash
 ![pop-up](./img/Screenshot%202026-01-06%20192710.png)
 
 To produce a hash that meets the difficulty requirement, we need a way to generate many different hashes from the same block data. This is achieved by changing the nonce value. Since SHA-256 is a cryptographic hash function, even a small change to the block’s contents results in a completely different hash. Mining is essentially the process of repeatedly adjusting the nonce and recalculating the hash until one is found that satisfies the difficulty target.
+
+## Transactions & Signatures 
+### 1. Public-Key Cryptography
+
+In Xypher, we use public-key cryptography. This means each user has:
+
+- Private key: secret, never shared.
+
+- Public key: can be shared safely; derived from the private key.
+
+You can use your private key to sign messages or transactions, and anyone can use your public key to verify that it really came from you.
+
+We use elliptic curve cryptography (ECDSA) for this, via a library called `elliptic`.
+
+### 2.Hashes vs Keys
+In Xypher, we use two types of cryptography:
+
+SHA256 (hash function) → used for mining and securing block integrity.
+
+ECDSA (public/private keys) → used for transactions to prove ownership of coins.
+
+Private key example: 19f128debc1b9122da0635954488b208b829879cf13b3d6cac5d1260c0fd967c
+
+Public key example: 04bfcab8722991ae...450313534a
+
+The public key becomes your wallet address and is where coins are sent.
+
+
