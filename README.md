@@ -1,5 +1,31 @@
-# Xypher-Cryptocurrency
-Xypher is a fast, secure, and decentralized cryptocurrency built for seamless transactions and real-world use, giving users full control in the Web3 economy.
+# Xypher Cryptocurrency
+Xypher is a from-scratch cryptocurrency implementation written in TypeScript, inspired by Bitcoin’s core design. It demonstrates how blockchains, proof-of-work, peer-to-peer networking, wallets, and cryptographically secure transactions work together in a decentralized system.
+
+## Features
+- ⛓️ **Blockchain** with Proof of Work (SHA-256)
+- 🔐 **ECDSA** public-key cryptography for transactions
+- 💸 **UTXO** (Unspent Transaction Output) transaction model
+- 🧾 **Transaction validation** & digital signatures
+- 🪙 Coinbase transactions & mining rewards
+- 🌐 **Peer-to-peer** (P2P) node communication
+- 👛 **Wallet** system using private/public keys
+- ⚙️ **REST API** for interacting with the node
+
+## 🧠 How Xypher Works (High Level)
+
+**1. Blockchain**
+- Each block contains:
+    - A list of transactions
+    - A hash of the previous block
+    - A nonce used for mining
+- Blocks are mined using Proof of Work, where the hash must meet a difficulty target
+
+**2. Transactions (UTXO Model)**
+- Transactions consist of:
+    - Inputs (TxIn) → reference unspent outputs
+    - Outputs (TxOut) → lock coins to public keys
+- Inputs unlock coins using ECDSA signatures
+- Outputs re-lock coins to a new owner’s public key
 
 ## File Structure 
 ```
