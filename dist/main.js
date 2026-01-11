@@ -38,6 +38,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const bodyParser = __importStar(require("body-parser"));
 const express_1 = __importDefault(require("express"));
+const lodash_1 = __importDefault(require("lodash"));
 const blockchain_1 = require("./blockchain");
 const p2p_1 = require("./p2p");
 const transactionPool_1 = require("./transactionPool");
@@ -75,6 +76,17 @@ const initHttpServer = (myHttpPort) => {
         else {
             res.status(404).send('Block not found');
         }
+    });
+    app.get('/transaction/:id', (req, res) => {
+        const tx = (0, lodash_1.default)((0, blockchain_1.getBlockchain)())
+            .map((blocks) => blocks.data)
+            .flatten()
+            .find({ 'id': req.params.id });
+        res.send(tx);
+    });
+    app.get('/address/:address', (req, res) => {
+        const unspentTxOuts = lodash_1.default.filter((0, blockchain_1.getUnspentTxOuts)(), (uTxO) => uTxO.address === req.params.address);
+        res.send({ 'unspentTxOuts': unspentTxOuts });
     });
     app.post('/mineBlock', (req, res) => {
         const newBlock = (0, blockchain_1.generateNextBlock)();
