@@ -27,23 +27,69 @@ Xypher is a from-scratch cryptocurrency implementation written in TypeScript, in
 - Inputs unlock coins using ECDSA signatures
 - Outputs re-lock coins to a new owner’s public key
 
-## File Structure 
+**3. Security**
+- Private keys are never shared or stored on-chain
+- Only public keys and signatures appear in the blockchain
+- Any change to a transaction invalidates its signature
+
+**4. Mining & Coinbase Transactions**
+- Miners create blocks and receive a coinbase reward
+- Coinbase transactions:
+    - Have no real inputs
+    - Mint new coins into circulation
+    - Are unique per block using the block height
+
+**5. P2P Network** 
+- Nodes communicate over WebSockets
+- Blocks and transactions are broadcast and validated
+- Invalid chains or transactions are rejected
+
+## 📂 Project Structure
 ```
-XYPHER-CRYPTOCURRENCY/
- ├── img/
- ├── node_modules/
- ├── src/
- │   ├── blockchain.ts
- │   ├── main.ts
- │   └── p2p.ts
- │
- ├── .gitignore
- ├── package-lock.json
- ├── package.json
- ├── README.md
- ├── tsconfig.json
- └── tslint.json
+XYPHER-CRYPTOCURRENCY/Backend/
+├── src/
+│ ├── blockchain.ts         # Block & chain logic
+│ ├── p2p.ts                # Peer-to-peer networking
+│ ├── transaction.ts        # Transactions & validation
+│ ├── transactionPool.ts    # Mempool handling
+│ ├── wallet.ts             # Wallet & key management
+│ ├── util.ts               # Hashing & helpers
+│ └── main.ts               # App entry point
+│
+├── dist/                   # Compiled JavaScript output
+├── img/                    # Screenshots & diagrams
+├── package.json
+├── tsconfig.json
+├── tslint.json
+└── README.md
 ```
+
+## Tech Stack 
+- TypeScript – type-safe backend development
+- Node.js – runtime
+- CryptoJS – SHA-256 hashing
+- elliptic – ECDSA public-key cryptography
+- WebSocket (ws) – peer-to-peer networking
+- Express – REST API
+
+## ▶️ Getting Started
+### 1. Install Dependencies
+``` bash
+npm install
+```
+### 2. Build the Project 
+``` bash
+npm run build
+```
+### 3. start a Node 
+``` bash
+npm start
+```
+### 4.(Optional) Start Multiple Nodes
+``` bash
+HTTP_PORT=3002 P2P_PORT=6002 npm start
+```
+
 ## Blockchain 
 
 The structure only include the most essential properties.
@@ -83,3 +129,18 @@ The **difficulty** property defines the number of zeros prefixing the block hash
 ![pop-up](./img/Screenshot%202026-01-06%20192710.png)
 
 To produce a hash that meets the difficulty requirement, we need a way to generate many different hashes from the same block data. This is achieved by changing the nonce value. Since SHA-256 is a cryptographic hash function, even a small change to the block’s contents results in a completely different hash. Mining is essentially the process of repeatedly adjusting the nonce and recalculating the hash until one is found that satisfies the difficulty target.
+
+## Transaction Signature(UTXO Model)
+
+### 1. Outputs & Inputs 
+Transaction used in cryptocurrency are typically based on the thought of UTXO model in which an output is given that unlocks amount in the target account(wallet) and the input(locks) amount. When giving a transaction the aomunt in the account is unlocked(output) then locked to the recepent(input) then unlocked ready for another transaction. 
+
+### 2. Transaction IDs
+
+When sending transactions a transactionID is given to prevent tampering allowing for better security. 
+ - Example: if  `AAA` was sending a transaction to `BBB` attackers could intersept 
+
+
+
+![pop-up](./img/ab88cdcc-1497-4daf-ad16-e89b632dc913.png)
+
