@@ -86,3 +86,6 @@ The **difficulty** property defines the number of zeros prefixing the block hash
 ![pop-up](./img/Screenshot%202026-01-06%20192710.png)
 
 To produce a hash that meets the difficulty requirement, we need a way to generate many different hashes from the same block data. This is achieved by changing the nonce value. Since SHA-256 is a cryptographic hash function, even a small change to the block’s contents results in a completely different hash. Mining is essentially the process of repeatedly adjusting the nonce and recalculating the hash until one is found that satisfies the difficulty target.
+
+## Architecture
+![pop-up](./img/ab88cdcc-1497-4daf-ad16-e89b632dc913.png)
