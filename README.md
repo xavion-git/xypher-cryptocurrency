@@ -1,50 +1,7 @@
-# Xypher Cryptocurrency
-Xypher is a from-scratch cryptocurrency implementation written in TypeScript, inspired by Bitcoin’s core design. It demonstrates how blockchains, proof-of-work, peer-to-peer networking, wallets, and cryptographically secure transactions work together in a decentralized system.
+# Xypher-Cryptocurrency
+Xypher is a fast, secure, and decentralized cryptocurrency built for seamless transactions and real-world use, giving users full control in the Web3 economy.
 
-## Features
-- ⛓️ **Blockchain** with Proof of Work (SHA-256)
-- 🔐 **ECDSA** public-key cryptography for transactions
-- 💸 **UTXO** (Unspent Transaction Output) transaction model
-- 🧾 **Transaction validation** & digital signatures
-- 🪙 Coinbase transactions & mining rewards
-- 🌐 **Peer-to-peer** (P2P) node communication
-- 👛 **Wallet** system using private/public keys
-- ⚙️ **REST API** for interacting with the node
-
-## 🧠 How Xypher Works (High Level)
-
-**1. Blockchain**
-- Each block contains:
-    - A list of transactions
-    - A hash of the previous block
-    - A nonce used for mining
-- Blocks are mined using Proof of Work, where the hash must meet a difficulty target
-
-**2. Transactions (UTXO Model)**
-- Transactions consist of:
-    - Inputs (TxIn) → reference unspent outputs
-    - Outputs (TxOut) → lock coins to public keys
-- Inputs unlock coins using ECDSA signatures
-- Outputs re-lock coins to a new owner’s public key
-
-**3. Security**
-- Private keys are never shared or stored on-chain
-- Only public keys and signatures appear in the blockchain
-- Any change to a transaction invalidates its signature
-
-**4. Mining & Coinbase Transactions**
-- Miners create blocks and receive a coinbase reward
-- Coinbase transactions:
-    - Have no real inputs
-    - Mint new coins into circulation
-    - Are unique per block using the block height
-
-**5. P2P Network** 
-- Nodes communicate over WebSockets
-- Blocks and transactions are broadcast and validated
-- Invalid chains or transactions are rejected
-
-## 📂 Project Structure
+## File Structure 
 ```
 XYPHER-CRYPTOCURRENCY/Backend/
 ├── src/
@@ -129,18 +86,3 @@ The **difficulty** property defines the number of zeros prefixing the block hash
 ![pop-up](./img/Screenshot%202026-01-06%20192710.png)
 
 To produce a hash that meets the difficulty requirement, we need a way to generate many different hashes from the same block data. This is achieved by changing the nonce value. Since SHA-256 is a cryptographic hash function, even a small change to the block’s contents results in a completely different hash. Mining is essentially the process of repeatedly adjusting the nonce and recalculating the hash until one is found that satisfies the difficulty target.
-
-## Transaction Signature(UTXO Model)
-
-### 1. Outputs & Inputs 
-Transaction used in cryptocurrency are typically based on the thought of UTXO model in which an output is given that unlocks amount in the target account(wallet) and the input(locks) amount. When giving a transaction the aomunt in the account is unlocked(output) then locked to the recepent(input) then unlocked ready for another transaction. 
-
-### 2. Transaction IDs
-
-When sending transactions a transactionID is given to prevent tampering allowing for better security. 
- - Example: if  `AAA` was sending a transaction to `BBB` attackers could intersept 
-
-
-
-![pop-up](./img/ab88cdcc-1497-4daf-ad16-e89b632dc913.png)
-
