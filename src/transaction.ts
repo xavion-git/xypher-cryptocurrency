@@ -89,7 +89,7 @@ const validateTransaction = (transaction: Transaction, aUnspentTxOuts: UnspentTx
         return false;
     }
 
-    const totalTxInValues: number = transaction.txIns
+     const totalTxInValues: number = transaction.txIns
         .map((txIn) => getTxInAmount(txIn, aUnspentTxOuts))
         .reduce((a, b) => (a + b), 0);
 
@@ -97,15 +97,33 @@ const validateTransaction = (transaction: Transaction, aUnspentTxOuts: UnspentTx
         .map((txOut) => txOut.amount)
         .reduce((a, b) => (a + b), 0);
 
-    if (totalTxOutValues !== totalTxInValues) {
-        console.log('totalTxOutValues !== totalTxInValues in tx: ' + transaction.id);
+    // Allow fees (outputs less than inputs)
+    if (totalTxOutValues > totalTxInValues) {
+        console.log('totalTxOutValues > totalTxInValues in tx: ' + transaction.id);
         return false;
     }
 
     return true;
 };
 
+// Calculate transaction fee
+const getTransactionFee = (transaction: Transaction, aUnspentTxOuts: UnspentTxOut[]): number => {
+    const totalIn = transaction.txIns
+        .map((txIn) => getTxInAmount(txIn, aUnspentTxOuts))
+        .reduce((a, b) => a + b, 0);
+    
+    const totalOut = transaction.txOuts
+        .map((txOut) => txOut.amount)
+        .reduce((a, b) => a + b, 0);
+    
+    return totalIn - totalOut;
+};
+
 const validateBlockTransactions = (aTransactions: Transaction[], aUnspentTxOuts: UnspentTxOut[], blockIndex: number): boolean => {
+    // Genesis block doen't get vaildated 
+    if(blockIndex === 0){
+        return true;
+    }
     const coinbaseTx = aTransactions[0];
     if (!validateCoinbaseTx(coinbaseTx, blockIndex)) {
         console.log('invalid coinbase transaction: ' + JSON.stringify(coinbaseTx));
@@ -241,6 +259,7 @@ const signTxIn = (transaction: Transaction, txInIndex: number,
 
     return signature;
 };
+
 const findUnspentTxOutSafe = (transactionId: string, index: number, aUnspentTxOuts: UnspentTxOut[]): UnspentTxOut | undefined => {
     return aUnspentTxOuts.find((utxo) => 
         utxo.txOutId === transactionId && utxo.txOutIndex === index
@@ -350,6 +369,7 @@ const isValidTransactionStructure = (transaction: Transaction) => {
     }
     return true;
 };
+
 
 //valid address is a valid ecdsa public key in the 04 + X-coordinate + Y-coordinate format
 const isValidAddress = (address: string): boolean => {

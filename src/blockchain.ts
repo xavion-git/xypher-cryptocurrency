@@ -199,8 +199,20 @@ const getAccumulatedDifficulty = (aBlockchain: Block[]): number => {
 };
 
 const isValidTimestamp = (newBlock: Block, previousBlock: Block): boolean => {
-    return ( previousBlock.timestamp - 60 < newBlock.timestamp )
-        && newBlock.timestamp - 60 < getCurrentTimestamp();
+    // Block can't be older than previous block
+    if (newBlock.timestamp < previousBlock.timestamp) {
+        console.log('Block timestamp is older than previous block');
+        return false;
+    }
+    
+    // Block can't be more than 10 seconds in the future
+    const maxFutureTime = getCurrentTimestamp() + 10;
+    if (newBlock.timestamp > maxFutureTime) {
+        console.log('Block timestamp too far in future');
+        return false;
+    }
+    
+    return true;
 };
 
 const hasValidHash = (block: Block): boolean => {
