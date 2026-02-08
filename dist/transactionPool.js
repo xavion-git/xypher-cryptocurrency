@@ -11,7 +11,12 @@ const getTransactionPool = () => {
     return lodash_1.default.cloneDeep(transactionPool);
 };
 exports.getTransactionPool = getTransactionPool;
+const MAX_TRANSACTION_POOL_SIZE = 1000;
 const addToTransactionPool = (tx, unspentTxOuts) => {
+    // Adding Mempool size limit 
+    if (transactionPool.length >= MAX_TRANSACTION_POOL_SIZE) {
+        throw Error('Transaction pool is full');
+    }
     if (!(0, transaction_1.validateTransaction)(tx, unspentTxOuts)) {
         throw Error('Trying to add invalid tx to pool');
     }
@@ -22,6 +27,9 @@ const addToTransactionPool = (tx, unspentTxOuts) => {
     transactionPool.push(tx);
 };
 exports.addToTransactionPool = addToTransactionPool;
+const getTransactionPoolSorted = (unspentTxOuts) => {
+    return lodash_1.default.orderBy(transactionPool, [(tx) => (0, transaction_1.getTransactionFee)(tx, unspentTxOuts)], ['desc']);
+};
 const hasTxIn = (txIn, unspentTxOuts) => {
     const foundTxIn = unspentTxOuts.find((uTxO) => {
         return uTxO.txOutId === txIn.txOutId && uTxO.txOutIndex === txIn.txOutIndex;

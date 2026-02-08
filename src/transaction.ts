@@ -108,6 +108,10 @@ const validateTransaction = (transaction: Transaction, aUnspentTxOuts: UnspentTx
 
 // Calculate transaction fee
 const getTransactionFee = (transaction: Transaction, aUnspentTxOuts: UnspentTxOut[]): number => {
+    // Coinbase has no inputs, so no fee
+    if (transaction.txIns.length === 1 && transaction.txIns[0].txOutId === '') {
+        return 0;
+    }
     const totalIn = transaction.txIns
         .map((txIn) => getTxInAmount(txIn, aUnspentTxOuts))
         .reduce((a, b) => a + b, 0);
@@ -229,12 +233,24 @@ const findUnspentTxOut = (transactionId: string, index: number, aUnspentTxOuts: 
     return uTxO;
 };
 
-const getCoinbaseTransaction = (address: string, blockIndex: number): Transaction => {
-   
+const getCoinbaseTransaction = (address: string, blockIndex: number, transactions: Transaction[], unspentTxOuts: UnspentTxOut[]): Transaction => {
+    // Calculate fees from all non-coinbase transactions
+    const totalFees = transactions
+        .map(tx => {
+            try {
+                return getTransactionFee(tx, unspentTxOuts);
+            } catch (e) {
+                return 0; // If we can't calculate fee, assume 0
+            }
+        })
+        .reduce((a, b) => a + b, 0);
+    
+    const totalReward = COINBASE_AMOUNT + totalFees;
+    
     const txIn = new TxIn('', blockIndex, '');
-    const txOut = new TxOut(address, COINBASE_AMOUNT);
-
-    return new Transaction([txIn], [txOut]); // ✅ now works
+    const txOut = new TxOut(address, totalReward);
+    
+    return new Transaction([txIn], [txOut]);
 };
 
 const signTxIn = (transaction: Transaction, txInIndex: number,

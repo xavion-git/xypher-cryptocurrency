@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Transaction = exports.hasDuplicates = exports.getPublicKey = exports.getCoinbaseTransaction = exports.TxOut = exports.TxIn = exports.UnspentTxOut = exports.validateTransaction = exports.isValidAddress = exports.getTransactionId = exports.signTxIn = exports.processTransactions = void 0;
+exports.Transaction = exports.getTransactionFee = exports.hasDuplicates = exports.getPublicKey = exports.getCoinbaseTransaction = exports.TxOut = exports.TxIn = exports.UnspentTxOut = exports.validateTransaction = exports.isValidAddress = exports.getTransactionId = exports.signTxIn = exports.processTransactions = void 0;
 const crypto_js_1 = __importDefault(require("crypto-js"));
 const ecdsa = __importStar(require("elliptic"));
 const lodash_1 = __importDefault(require("lodash"));
@@ -105,14 +105,34 @@ const validateTransaction = (transaction, aUnspentTxOuts) => {
     const totalTxOutValues = transaction.txOuts
         .map((txOut) => txOut.amount)
         .reduce((a, b) => (a + b), 0);
-    if (totalTxOutValues !== totalTxInValues) {
-        console.log('totalTxOutValues !== totalTxInValues in tx: ' + transaction.id);
+    // Allow fees (outputs less than inputs)
+    if (totalTxOutValues > totalTxInValues) {
+        console.log('totalTxOutValues > totalTxInValues in tx: ' + transaction.id);
         return false;
     }
     return true;
 };
 exports.validateTransaction = validateTransaction;
+// Calculate transaction fee
+const getTransactionFee = (transaction, aUnspentTxOuts) => {
+    // Coinbase has no inputs, so no fee
+    if (transaction.txIns.length === 1 && transaction.txIns[0].txOutId === '') {
+        return 0;
+    }
+    const totalIn = transaction.txIns
+        .map((txIn) => getTxInAmount(txIn, aUnspentTxOuts))
+        .reduce((a, b) => a + b, 0);
+    const totalOut = transaction.txOuts
+        .map((txOut) => txOut.amount)
+        .reduce((a, b) => a + b, 0);
+    return totalIn - totalOut;
+};
+exports.getTransactionFee = getTransactionFee;
 const validateBlockTransactions = (aTransactions, aUnspentTxOuts, blockIndex) => {
+    // Genesis block doen't get vaildated 
+    if (blockIndex === 0) {
+        return true;
+    }
     const coinbaseTx = aTransactions[0];
     if (!validateCoinbaseTx(coinbaseTx, blockIndex)) {
         console.log('invalid coinbase transaction: ' + JSON.stringify(coinbaseTx));
@@ -199,10 +219,22 @@ const findUnspentTxOut = (transactionId, index, aUnspentTxOuts) => {
     }
     return uTxO;
 };
-const getCoinbaseTransaction = (address, blockIndex) => {
+const getCoinbaseTransaction = (address, blockIndex, transactions, unspentTxOuts) => {
+    // Calculate fees from all non-coinbase transactions
+    const totalFees = transactions
+        .map(tx => {
+        try {
+            return getTransactionFee(tx, unspentTxOuts);
+        }
+        catch (e) {
+            return 0; // If we can't calculate fee, assume 0
+        }
+    })
+        .reduce((a, b) => a + b, 0);
+    const totalReward = COINBASE_AMOUNT + totalFees;
     const txIn = new TxIn('', blockIndex, '');
-    const txOut = new TxOut(address, COINBASE_AMOUNT);
-    return new Transaction([txIn], [txOut]); // ✅ now works
+    const txOut = new TxOut(address, totalReward);
+    return new Transaction([txIn], [txOut]);
 };
 exports.getCoinbaseTransaction = getCoinbaseTransaction;
 const signTxIn = (transaction, txInIndex, privateKey, aUnspentTxOuts) => {
@@ -224,6 +256,9 @@ const signTxIn = (transaction, txInIndex, privateKey, aUnspentTxOuts) => {
     return signature;
 };
 exports.signTxIn = signTxIn;
+const findUnspentTxOutSafe = (transactionId, index, aUnspentTxOuts) => {
+    return aUnspentTxOuts.find((utxo) => utxo.txOutId === transactionId && utxo.txOutIndex === index);
+};
 const updateUnspentTxOuts = (aTransactions, aUnspentTxOuts) => {
     const newUnspentTxOuts = aTransactions
         .map((t) => {
@@ -235,7 +270,7 @@ const updateUnspentTxOuts = (aTransactions, aUnspentTxOuts) => {
         .reduce((a, b) => a.concat(b), [])
         .map((txIn) => new UnspentTxOut(txIn.txOutId, txIn.txOutIndex, '', 0));
     const resultingUnspentTxOuts = aUnspentTxOuts
-        .filter(((uTxO) => !findUnspentTxOut(uTxO.txOutId, uTxO.txOutIndex, consumedTxOuts)))
+        .filter((uTxO) => !findUnspentTxOutSafe(uTxO.txOutId, uTxO.txOutIndex, consumedTxOuts))
         .concat(newUnspentTxOuts);
     return resultingUnspentTxOuts;
 };

@@ -80,8 +80,11 @@ const getUnspentTxOuts = () => lodash_1.default.cloneDeep(unspentTxOuts);
 exports.getUnspentTxOuts = getUnspentTxOuts;
 // and txPool should be only updated at the same time
 const setUnspentTxOuts = (newUnspentTxOut) => {
-    console.log('replacing unspentTxouts with: %s', newUnspentTxOut);
-    unspentTxOuts = newUnspentTxOut;
+    if (!Array.isArray(newUnspentTxOut)) {
+        throw new Error('Invalid unspent transaction outputs');
+    }
+    console.log('replacing unspentTxouts with: %s', JSON.stringify(newUnspentTxOut));
+    unspentTxOuts = lodash_1.default.cloneDeep(newUnspentTxOut); // Prevent external mutations
 };
 const getLatestBlock = () => blockchain[blockchain.length - 1];
 exports.getLatestBlock = getLatestBlock;
@@ -136,8 +139,9 @@ const getMyUnspentTransactionOutputs = () => {
 };
 exports.getMyUnspentTransactionOutputs = getMyUnspentTransactionOutputs;
 const generateNextBlock = () => {
-    const coinbaseTx = (0, transaction_1.getCoinbaseTransaction)((0, wallet_1.getPublicFromWallet)(), getLatestBlock().index + 1);
-    const blockData = [coinbaseTx].concat((0, transactionPool_1.getTransactionPool)());
+    const poolTransactions = (0, transactionPool_1.getTransactionPool)();
+    const coinbaseTx = (0, transaction_1.getCoinbaseTransaction)((0, wallet_1.getPublicFromWallet)(), getLatestBlock().index + 1, poolTransactions, getUnspentTxOuts());
+    const blockData = [coinbaseTx].concat(poolTransactions);
     return generateRawNextBlock(blockData);
 };
 exports.generateNextBlock = generateNextBlock;
@@ -148,8 +152,9 @@ const generatenextBlockWithTransaction = (receiverAddress, amount) => {
     if (typeof amount !== 'number') {
         throw Error('invalid amount');
     }
-    const coinbaseTx = (0, transaction_1.getCoinbaseTransaction)((0, wallet_1.getPublicFromWallet)(), getLatestBlock().index + 1);
     const tx = (0, wallet_1.createTransaction)(receiverAddress, amount, (0, wallet_1.getPrivateFromWallet)(), unspentTxOuts, (0, transactionPool_1.getTransactionPool)());
+    const coinbaseTx = (0, transaction_1.getCoinbaseTransaction)((0, wallet_1.getPublicFromWallet)(), getLatestBlock().index + 1, [tx], // Pass the transaction as an array
+    getUnspentTxOuts());
     const blockData = [coinbaseTx, tx];
     return generateRawNextBlock(blockData);
 };
@@ -176,11 +181,17 @@ const sendTransaction = (address, amount) => {
 };
 exports.sendTransaction = sendTransaction;
 const calculateHashForBlock = (block) => calculateHash(block.index, block.previousHash, block.timestamp, block.data, block.difficulty, block.nonce);
+const MAX_BLOCK_SIZE = 1000000; // 1MB in bytes
+const getBlockSize = (block) => {
+    return JSON.stringify(block.data).length;
+};
 // Validation for integrity 
 const isValidNewBlock = (newBlock, previousBlock) => {
     if (!isValidBlockStructure(newBlock)) {
         console.log('invalid block structure: %s', JSON.stringify(newBlock));
         return false;
+    }
+    if (getBlockSize(newBlock) > MAX_BLOCK_SIZE) {
     }
     if (previousBlock.index + 1 !== newBlock.index) {
         console.log('invalid index');
@@ -206,8 +217,18 @@ const getAccumulatedDifficulty = (aBlockchain) => {
         .reduce((a, b) => a + b);
 };
 const isValidTimestamp = (newBlock, previousBlock) => {
-    return (previousBlock.timestamp - 60 < newBlock.timestamp)
-        && newBlock.timestamp - 60 < getCurrentTimestamp();
+    // Block can't be older than previous block
+    if (newBlock.timestamp < previousBlock.timestamp) {
+        console.log('Block timestamp is older than previous block');
+        return false;
+    }
+    // Block can't be more than 10 seconds in the future
+    const maxFutureTime = getCurrentTimestamp() + 10;
+    if (newBlock.timestamp > maxFutureTime) {
+        console.log('Block timestamp too far in future');
+        return false;
+    }
+    return true;
 };
 const hasValidHash = (block) => {
     if (!hashMatchesBlockContent(block)) {

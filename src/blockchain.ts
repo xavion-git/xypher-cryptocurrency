@@ -2,7 +2,7 @@ import * as CryptoJS from 'crypto-js';
 import _ from 'lodash';
 import {broadcastLatest, broadCastTransactionPool} from './p2p';
 import {hexToBinary} from './util';
-import {getCoinbaseTransaction, isValidAddress, processTransactions, Transaction, UnspentTxOut} from './transaction';
+import {getCoinbaseTransaction, isValidAddress, processTransactions, Transaction, UnspentTxOut, getTransactionFee } from './transaction';
 import {addToTransactionPool, getTransactionPool, updateTransactionPool} from './transactionPool';
 import {createTransaction, findUnspentTxOuts, getBalance, getPrivateFromWallet, getPublicFromWallet} from './wallet';
 
@@ -126,8 +126,14 @@ const getMyUnspentTransactionOutputs = () => {
 };
 
 const generateNextBlock = () => {
-    const coinbaseTx: Transaction = getCoinbaseTransaction(getPublicFromWallet(), getLatestBlock().index + 1);
-    const blockData: Transaction[] = [coinbaseTx].concat(getTransactionPool());
+    const poolTransactions = getTransactionPool();
+    const coinbaseTx: Transaction = getCoinbaseTransaction(
+        getPublicFromWallet(), 
+        getLatestBlock().index + 1,
+        poolTransactions,
+        getUnspentTxOuts()
+    );
+    const blockData: Transaction[] = [coinbaseTx].concat(poolTransactions);
     return generateRawNextBlock(blockData);
 };
 
@@ -138,8 +144,22 @@ const generatenextBlockWithTransaction = (receiverAddress: string, amount: numbe
     if (typeof amount !== 'number') {
         throw Error('invalid amount');
     }
-    const coinbaseTx: Transaction = getCoinbaseTransaction(getPublicFromWallet(), getLatestBlock().index + 1);
-   const tx: Transaction = createTransaction(receiverAddress,amount,getPrivateFromWallet(),unspentTxOuts,getTransactionPool());
+    
+    const tx: Transaction = createTransaction(
+        receiverAddress,
+        amount,
+        getPrivateFromWallet(),
+        unspentTxOuts,
+        getTransactionPool()
+    );
+    
+    const coinbaseTx: Transaction = getCoinbaseTransaction(
+        getPublicFromWallet(), 
+        getLatestBlock().index + 1,
+        [tx],  // Pass the transaction as an array
+        getUnspentTxOuts()
+    );
+    
     const blockData: Transaction[] = [coinbaseTx, tx];
     return generateRawNextBlock(blockData);
 };
@@ -168,7 +188,6 @@ const sendTransaction = (address: string, amount: number): Transaction => {
 
 const calculateHashForBlock = (block: Block): string =>
     calculateHash(block.index, block.previousHash, block.timestamp, block.data, block.difficulty, block.nonce);
-
 const MAX_BLOCK_SIZE = 1000000; // 1MB in bytes
 
 const getBlockSize = (block: Block): number => {
@@ -182,8 +201,7 @@ const isValidNewBlock = (newBlock: Block, previousBlock: Block): boolean => {
         return false;
     }
     if(getBlockSize(newBlock) > MAX_BLOCK_SIZE) {
-        console.log('block size exceeds maximum');
-        return false;
+        
     }
     if (previousBlock.index + 1 !== newBlock.index) {
         console.log('invalid index');

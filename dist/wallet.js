@@ -83,18 +83,11 @@ const filterTxPoolTxs = (unspentTxOuts, transactionPool) => {
         .map((tx) => tx.txIns)
         .flatten()
         .value();
-    const removable = [];
-    for (const unspentTxOut of unspentTxOuts) {
-        const txIn = lodash_1.default.find(txIns, (aTxIn) => {
-            return aTxIn.txOutIndex === unspentTxOut.txOutIndex && aTxIn.txOutId === unspentTxOut.txOutId;
-        });
-        if (txIn === undefined) {
-        }
-        else {
-            removable.push(unspentTxOut);
-        }
-    }
-    return lodash_1.default.without(unspentTxOuts, ...removable);
+    return unspentTxOuts.filter((unspentTxOut) => {
+        const isAlreadySpentInPool = txIns.some((txIn) => txIn.txOutIndex === unspentTxOut.txOutIndex &&
+            txIn.txOutId === unspentTxOut.txOutId);
+        return !isAlreadySpentInPool;
+    });
 };
 const createTransaction = (receiverAddress, amount, privateKey, unspentTxOuts, txPool) => {
     console.log('txPool: %s', JSON.stringify(txPool));
