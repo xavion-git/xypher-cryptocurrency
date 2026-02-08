@@ -1,14 +1,18 @@
 import _ from 'lodash';
-import {Transaction, TxIn, UnspentTxOut, validateTransaction} from './transaction';
+import {Transaction, TxIn, UnspentTxOut, validateTransaction, getTransactionFee } from './transaction';
 
 let transactionPool: Transaction[] = [];
 
 const getTransactionPool = () => {
     return _.cloneDeep(transactionPool);
 };
+const MAX_TRANSACTION_POOL_SIZE = 1000;
 
 const addToTransactionPool = (tx: Transaction, unspentTxOuts: UnspentTxOut[]) => {
-
+    // Adding Mempool size limit 
+    if (transactionPool.length >= MAX_TRANSACTION_POOL_SIZE) {
+        throw Error('Transaction pool is full');
+    }
     if (!validateTransaction(tx, unspentTxOuts)) {
         throw Error('Trying to add invalid tx to pool');
     }
@@ -18,6 +22,14 @@ const addToTransactionPool = (tx: Transaction, unspentTxOuts: UnspentTxOut[]) =>
     }
     console.log('adding to txPool: %s', JSON.stringify(tx));
     transactionPool.push(tx);
+};
+
+const getTransactionPoolSorted = (unspentTxOuts: UnspentTxOut[]): Transaction[] => {
+    return _.orderBy(
+        transactionPool,
+        [(tx) => getTransactionFee(tx, unspentTxOuts)],
+        ['desc']
+    );
 };
 
 const hasTxIn = (txIn: TxIn, unspentTxOuts: UnspentTxOut[]): boolean => {
