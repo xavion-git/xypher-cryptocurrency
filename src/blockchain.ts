@@ -169,11 +169,20 @@ const sendTransaction = (address: string, amount: number): Transaction => {
 const calculateHashForBlock = (block: Block): string =>
     calculateHash(block.index, block.previousHash, block.timestamp, block.data, block.difficulty, block.nonce);
 
+const MAX_BLOCK_SIZE = 1000000; // 1MB in bytes
+
+const getBlockSize = (block: Block): number => {
+    return JSON.stringify(block.data).length;
+};
 
 // Validation for integrity 
 const isValidNewBlock = (newBlock: Block, previousBlock: Block): boolean => {
     if (!isValidBlockStructure(newBlock)) {
         console.log('invalid block structure: %s', JSON.stringify(newBlock));
+        return false;
+    }
+    if(getBlockSize(newBlock) > MAX_BLOCK_SIZE) {
+        console.log('block size exceeds maximum');
         return false;
     }
     if (previousBlock.index + 1 !== newBlock.index) {
