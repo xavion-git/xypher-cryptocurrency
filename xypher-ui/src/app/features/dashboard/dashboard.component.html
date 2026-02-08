@@ -1,0 +1,70 @@
+<div class="dashboard-container">
+  <div class="header">
+    <h1>Blockchain Dashboard</h1>
+    <button (click)="refresh()" class="refresh-btn">
+      <span>🔄</span> Refresh
+    </button>
+  </div>
+
+  <!-- Wallet Info -->
+  <div class="wallet-card">
+    <h2>Your Wallet</h2>
+    <div class="wallet-info">
+      <div class="balance">
+        <label>Balance:</label>
+        <span class="amount">{{ balance$ | async }} coins</span>
+      </div>
+      <div class="address">
+        <label>Address:</label>
+        <span class="addr-text">{{ (address$ | async)?.substring(0, 20) }}...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Network Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">📦</div>
+      <div class="stat-content">
+        <div class="stat-label">Total Blocks</div>
+        <div class="stat-value">{{ networkStats.totalBlocks }}</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">⚙️</div>
+      <div class="stat-content">
+        <div class="stat-label">Difficulty</div>
+        <div class="stat-value">{{ networkStats.difficulty }}</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon">⏳</div>
+      <div class="stat-content">
+        <div class="stat-label">Pending Transactions</div>
+        <div class="stat-value">{{ networkStats.pendingTransactions }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Latest Blocks -->
+  <div class="latest-blocks">
+    <h2>Latest Blocks</h2>
+    <div class="blocks-list">
+      <div *ngFor="let block of latestBlocks" class="block-item">
+        <div class="block-header">
+          <span class="block-index">#{{ block.index }}</span>
+          <span class="block-time">{{ block.timestamp * 1000 | date:'short' }}</span>
+        </div>
+        <div class="block-hash">
+          <label>Hash:</label>
+          <span>{{ block.hash.substring(0, 16) }}...</span>
+        </div>
+        <div class="block-txs">
+          <span>{{ block.data.length }} transaction(s)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
