@@ -82,20 +82,14 @@ const filterTxPoolTxs = (unspentTxOuts: UnspentTxOut[], transactionPool: Transac
         .map((tx: Transaction) => tx.txIns)
         .flatten()
         .value();
-    const removable: UnspentTxOut[] = [];
-    for (const unspentTxOut of unspentTxOuts) {
-        const txIn = _.find(txIns, (aTxIn: TxIn) => {
-            return aTxIn.txOutIndex === unspentTxOut.txOutIndex && aTxIn.txOutId === unspentTxOut.txOutId;
-        });
-
-        if (txIn === undefined) {
-
-        } else {
-            removable.push(unspentTxOut);
-        }
-    }
-
-    return _.without(unspentTxOuts, ...removable);
+    
+    return unspentTxOuts.filter((unspentTxOut) => {
+        const isAlreadySpentInPool = txIns.some((txIn: TxIn) => 
+            txIn.txOutIndex === unspentTxOut.txOutIndex && 
+            txIn.txOutId === unspentTxOut.txOutId
+        );
+        return !isAlreadySpentInPool;
+    });
 };
 
 const createTransaction = (receiverAddress: string, amount: number, privateKey: string,unspentTxOuts: UnspentTxOut[], txPool: Transaction[]): Transaction => {
