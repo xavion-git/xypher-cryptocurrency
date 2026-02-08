@@ -16,12 +16,18 @@ import { connectToPeers, getSockets, initP2PServer } from './p2p';
 import { UnspentTxOut } from './transaction';
 import {getTransactionPool} from './transactionPool';
 import {getPublicFromWallet, initWallet} from './wallet';
+import cors from 'cors';
 
 const httpPort: number = parseInt(process.env.HTTP_PORT ?? '3001', 10);
 const p2pPort: number = parseInt(process.env.P2P_PORT ?? '6001', 10);
 
 const initHttpServer = (myHttpPort: number) => {
     const app = express();
+    app.use(cors({
+        origin: 'http//localhost:4200', 
+        credentials: true
+    }));
+
     app.use(bodyParser.json());
 
     // Global error handler

@@ -3,7 +3,7 @@ Xypher is a fast, secure, and decentralized cryptocurrency built for seamless tr
 
 ## File Structure 
 ```
-XYPHER-CRYPTOCURRENCY/Backend/
+XYPHER-CRYPTOCURRENCY/
 ├── src/
 │ ├── blockchain.ts         # Block & chain logic
 │ ├── p2p.ts                # Peer-to-peer networking
@@ -12,7 +12,37 @@ XYPHER-CRYPTOCURRENCY/Backend/
 │ ├── wallet.ts             # Wallet & key management
 │ ├── util.ts               # Hashing & helpers
 │ └── main.ts               # App entry point
-│
+│├── xypther-ui/               ⭐ Angular Frontend
+│   └── src/
+│       └── app/
+│           ├── core/
+│           │   ├── services/
+│           │   │   ├── blockchain.service.ts
+│           │   │   ├── wallet.service.ts
+│           │   │   └── websocket.service.ts
+│           │   ├── models/
+│           │   │   ├── block.model.ts
+│           │   │   ├── transaction.model.ts
+│           │   │   └── wallet.model.ts
+│           │   └── interceptors/
+│           │       └── http-error.interceptor.ts
+│           │
+│           ├── features/
+│           │   ├── dashboard/
+│           │   │   └── dashboard.component.ts
+│           │   ├── wallet/
+│           │   │   ├── wallet-balance/
+│           │   │   └── send-transaction/
+│           │   ├── explorer/
+│           │   │   ├── block-list/
+│           │   │   ├── block-detail/
+│           │   │   └── transaction-detail/
+│           │   └── network/
+│           │       └── peer-list/
+│           │
+│           └── shared/
+│               ├── components/
+│               └── pipes/
 ├── dist/                   # Compiled JavaScript output
 ├── img/                    # Screenshots & diagrams
 ├── package.json
