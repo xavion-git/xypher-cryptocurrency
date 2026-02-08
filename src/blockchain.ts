@@ -60,8 +60,11 @@ const getUnspentTxOuts = (): UnspentTxOut[] => _.cloneDeep(unspentTxOuts);
 
 // and txPool should be only updated at the same time
 const setUnspentTxOuts = (newUnspentTxOut: UnspentTxOut[]) => {
-    console.log('replacing unspentTxouts with: %s', newUnspentTxOut);
-    unspentTxOuts = newUnspentTxOut;
+    if (!Array.isArray(newUnspentTxOut)) {
+        throw new Error('Invalid unspent transaction outputs');
+    }
+    console.log('replacing unspentTxouts with: %s', JSON.stringify(newUnspentTxOut));
+    unspentTxOuts = _.cloneDeep(newUnspentTxOut); // Prevent external mutations
 };
 
 const getLatestBlock = (): Block => blockchain[blockchain.length - 1];

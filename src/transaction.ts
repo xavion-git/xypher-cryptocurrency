@@ -241,11 +241,18 @@ const signTxIn = (transaction: Transaction, txInIndex: number,
 
     return signature;
 };
+const findUnspentTxOutSafe = (transactionId: string, index: number, aUnspentTxOuts: UnspentTxOut[]): UnspentTxOut | undefined => {
+    return aUnspentTxOuts.find((utxo) => 
+        utxo.txOutId === transactionId && utxo.txOutIndex === index
+    );
+};
 
 const updateUnspentTxOuts = (aTransactions: Transaction[], aUnspentTxOuts: UnspentTxOut[]): UnspentTxOut[] => {
     const newUnspentTxOuts: UnspentTxOut[] = aTransactions
         .map((t) => {
-            return t.txOuts.map((txOut, index) => new UnspentTxOut(t.id, index, txOut.address, txOut.amount));
+            return t.txOuts.map((txOut, index) => 
+                new UnspentTxOut(t.id, index, txOut.address, txOut.amount)
+            );
         })
         .reduce((a, b) => a.concat(b), []);
 
@@ -255,7 +262,7 @@ const updateUnspentTxOuts = (aTransactions: Transaction[], aUnspentTxOuts: Unspe
         .map((txIn) => new UnspentTxOut(txIn.txOutId, txIn.txOutIndex, '', 0));
 
     const resultingUnspentTxOuts = aUnspentTxOuts
-        .filter(((uTxO) => !findUnspentTxOut(uTxO.txOutId, uTxO.txOutIndex, consumedTxOuts)))
+        .filter((uTxO) => !findUnspentTxOutSafe(uTxO.txOutId, uTxO.txOutIndex, consumedTxOuts))
         .concat(newUnspentTxOuts);
 
     return resultingUnspentTxOuts;
