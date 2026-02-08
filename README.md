@@ -1,5 +1,55 @@
-# Xypher-Cryptocurrency
-Xypher is a fast, secure, and decentralized cryptocurrency built for seamless transactions and real-world use, giving users full control in the Web3 economy.
+# Xypher Cryptocurrency
+Xypher is a fast, secure, and decentralized cryptocurrency built from scratch using TypeScript and Node.js. The project demonstrates core blockchain architecture, peer-to-peer networking, cryptographic security, and a real-time Angular dashboard for interacting with the network.
+
+This system simulates a complete Web3 environment where nodes maintain consensus, transactions are validated, and users manage wallets with full ownership of their digital assets.
+
+## Features 
+- Custom blockchain implementation in TypeScript.  
+- Proof-of-Work mining with adjustable difficulty.  
+- Peer-to-peer network synchronization using WebSockets.  
+- Transaction validation and mempool management.  
+- ECDSA wallet generation and digital signatures.  
+- REST API for node interaction.  
+- Angular dashboard for blockchain visualization.  
+- Real-time network updates.  
+- Modular and scalable architecture.
+
+## System Architecture
+```
+Angular UI (xypther-ui)
+        ↓ REST API / WebSocket
+Node.js Backend
+        ↓
+Blockchain Core
+        ↓
+Peer-to-Peer Network
+```
+
+### Architecture Layers
+**Blockchain Layer**
+- Block creation and validation  
+- Hashing and chain integrity  
+- Proof-of-Work mining  
+
+**Network Layer**
+- Peer discovery and communication  
+- Blockchain synchronization  
+- Broadcast of new blocks  
+
+**Wallet Layer**
+- Public/private key generation  
+- Transaction signing  
+- Balance tracking  
+
+**API Layer**
+- External access to blockchain data  
+- Node control and monitoring  
+
+**Frontend Layer**
+- Blockchain explorer  
+- Wallet interface  
+- Transaction submission  
+- Peer network dashboard
 
 ## File Structure 
 ```
@@ -50,7 +100,12 @@ XYPHER-CRYPTOCURRENCY/
 ├── tslint.json
 └── README.md
 ```
-
+## Angular Dashboard
+```
+cd xypther-ui
+npm install
+ng serve
+```
 ## Tech Stack 
 - TypeScript – type-safe backend development
 - Node.js – runtime
@@ -76,6 +131,14 @@ npm start
 ``` bash
 HTTP_PORT=3002 P2P_PORT=6002 npm start
 ```
+## API Endpoints
+```
+GET
+/blocks
+Retrieve full blockchain
+```
+<hr>
+
 
 ## Blockchain 
 
