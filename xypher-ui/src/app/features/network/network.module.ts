@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NetworkRoutingModule } from './network-routing.module';
 import { NetworkComponent } from './network.component';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -10,6 +11,7 @@ import { NetworkComponent } from './network.component';
   ],
   imports: [
     CommonModule,
+    FormsModule,
     NetworkRoutingModule
   ]
 })
