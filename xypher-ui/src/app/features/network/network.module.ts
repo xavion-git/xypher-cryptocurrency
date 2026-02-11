@@ -9,7 +9,7 @@ import { NetworkComponent } from './network.component';
     NetworkComponent
   ],
   imports: [
-    CommonModule,  
+    CommonModule,
     NetworkRoutingModule
   ]
 })

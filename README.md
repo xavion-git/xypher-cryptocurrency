@@ -133,9 +133,7 @@ HTTP_PORT=3002 P2P_PORT=6002 npm start
 ```
 ## API Endpoints
 ```
-GET
-/blocks
-Retrieve full blockchain
+GET            /blocks Retrieve fullblockchain
 ```
 <hr>
 
