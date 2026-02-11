@@ -8,7 +8,7 @@ import { DashboardComponent } from './dashboard.component';
     DashboardComponent
   ],
   imports: [
-    CommonModule,  // ← ADD THIS - provides *ngIf, *ngFor, async pipe, date pipe
+    CommonModule,  
     DashboardRoutingModule
   ]
 })
