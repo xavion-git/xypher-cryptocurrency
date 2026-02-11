@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-wallet-balance',
+  standalone: false,
   templateUrl: './wallet-balance.component.html',
   styleUrls: ['./wallet-balance.component.scss']
 })

@@ -4,6 +4,7 @@ import { BlockchainService } from '../../../core/services/blockchain.service';
 
 @Component({
   selector: 'app-send-transaction',
+  standalone: false,
   templateUrl: './send-transaction.component.html',
   styleUrls: ['./send-transaction.component.scss']
 })

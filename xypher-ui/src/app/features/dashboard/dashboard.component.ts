@@ -6,6 +6,7 @@ import { Block, Transaction } from '../../core/models/block.model';
 
 @Component({
     selector: 'app-dashboard',
+    standalone: false,
     templateUrl: './dashboard.component.html',
     styleUrls: ['./dashboard.component.scss']
 })

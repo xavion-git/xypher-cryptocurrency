@@ -1,0 +1,18 @@
+<!-- src/app/app.component.html -->
+<nav class="navbar">
+  <div class="navbar-content">
+    <div class="logo">
+      <span></span>
+      <span>MyBlockchain</span>
+    </div>
+    <ul class="nav-links">
+      <li><a routerLink="/dashboard" routerLinkActive="active">Dashboard</a></li>
+      <li><a routerLink="/wallet" routerLinkActive="active">Wallet</a></li>
+      <li><a routerLink="/explorer" routerLinkActive="active">Explorer</a></li>
+      <li><a routerLink="/mining" routerLinkActive="active">Mining</a></li>
+      <li><a routerLink="/network" routerLinkActive="active">Network</a></li>
+    </ul>
+  </div>
+</nav>
+
+<router-outlet></router-outlet>

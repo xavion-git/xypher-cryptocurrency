@@ -3,6 +3,7 @@ import { BlockchainService } from '../../core/services/blockchain.service';
 
 @Component({
   selector: 'app-network',
+  standalone: false,
   templateUrl: './network.component.html',
   styleUrls: ['./network.component.scss']
 })

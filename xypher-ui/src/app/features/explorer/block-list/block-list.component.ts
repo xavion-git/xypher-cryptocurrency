@@ -5,6 +5,7 @@ import { Block } from '../../../core/models/block.model';
 
 @Component({
   selector: 'app-block-list',
+  standalone: false,
   templateUrl: './block-list.component.html',
   styleUrls: ['./block-list.component.scss']
 })

@@ -5,6 +5,7 @@ import { Transaction } from '../../core/models/block.model';
 
 @Component({
   selector: 'app-mining',
+  standalone: false,
   templateUrl: './mining.component.html',
   styleUrls: ['./mining.component.scss']
 })

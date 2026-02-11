@@ -5,6 +5,7 @@ import { Transaction } from '../../../core/models/block.model';
 
 @Component({
   selector: 'app-transaction-detail',
+  standalone: false,
   templateUrl: './transaction-detail.component.html',
   styleUrls: ['./transaction-detail.component.scss']
 })
