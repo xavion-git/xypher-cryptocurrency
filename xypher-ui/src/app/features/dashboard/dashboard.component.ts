@@ -7,7 +7,7 @@ import { Block, Transaction } from '../../core/models/block.model';
 @Component({
     selector: 'app-dashboard',
     templateUrl: './dashboard.component.html',
-    styleUrls: ['./dashboard.componet.scss']
+    styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
   blocks$: Observable<Block[]>;
