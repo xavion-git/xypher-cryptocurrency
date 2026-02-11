@@ -1,0 +1,37 @@
+<div class="block-list-container">
+  <div class="search-section">
+    <input 
+      type="text" 
+      [(ngModel)]="searchTerm"
+      (keyup.enter)="onSearch()"
+      class="search-input" 
+      placeholder="Search by block hash, transaction ID, or address..."
+    >
+  </div>
+
+  <h2>All Blocks</h2>
+  
+  <div class="blocks-list">
+    <div *ngFor="let block of blocks$ | async" class="block-item">
+      <div class="block-header">
+        <span class="block-index">#{{ block.index }}</span>
+        <span class="block-time">{{ block.timestamp * 1000 | date:'medium' }}</span>
+      </div>
+      <div class="block-info">
+        <div class="info-row">
+          <label>Hash:</label>
+          <span class="hash-text">{{ block.hash }}</span>
+        </div>
+        <div class="info-row">
+          <label>Previous Hash:</label>
+          <span class="hash-text">{{ block.previousHash }}</span>
+        </div>
+        <div class="block-meta">
+          <span class="badge">{{ block.data.length }} transactions</span>
+          <span class="badge">Difficulty: {{ block.difficulty }}</span>
+          <span class="badge">Nonce: {{ block.nonce }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
