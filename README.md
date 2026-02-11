@@ -26,6 +26,8 @@ Peer-to-Peer Network
 ```
 
 ### Architecture Layers
+<hr>
+
 **Blockchain Layer**
 - Block creation and validation  
 - Hashing and chain integrity  
@@ -62,7 +64,7 @@ XYPHER-CRYPTOCURRENCY/
 │ ├── wallet.ts             # Wallet & key management
 │ ├── util.ts               # Hashing & helpers
 │ └── main.ts               # App entry point
-│├── xypther-ui/               ⭐ Angular Frontend
+│├── xypther-ui/              Angular Frontend
 │   └── src/
 │       └── app/
 │           ├── core/
