@@ -1,4 +1,6 @@
-# Xypher Cryptocurrency
+
+![pop-up](<img/Screenshot 2026-02-11 223933.png>)
+<hr>
 Xypher is a fast, secure, and decentralized cryptocurrency built from scratch using TypeScript and Node.js. The project demonstrates core blockchain architecture, peer-to-peer networking, cryptographic security, and a real-time Angular dashboard for interacting with the network.
 
 This system simulates a complete Web3 environment where nodes maintain consensus, transactions are validated, and users manage wallets with full ownership of their digital assets.
@@ -14,15 +16,49 @@ This system simulates a complete Web3 environment where nodes maintain consensus
 - Real-time network updates.  
 - Modular and scalable architecture.
 
+## Dashboard
+
+![pop-up](<img/Screenshot 2026-02-11 195949.png>)
+
 ## System Architecture
 ```
-Angular UI (xypther-ui)
-        ↓ REST API / WebSocket
-Node.js Backend
-        ↓
-Blockchain Core
-        ↓
-Peer-to-Peer Network
+flowchart LR
+
+    subgraph Client Layer
+        A[Angular App<br>xypher-ui]
+    end
+
+    subgraph API Layer
+        B[Express HTTP Server]
+        C[P2P Server]
+    end
+
+    subgraph Core Blockchain Engine
+        D[Blockchain Logic]
+        E[Transaction System]
+        F[Wallet System]
+        G[Mining Engine]
+    end
+
+    subgraph Data Layer
+        H[(MongoDB Database)]
+    end
+
+    subgraph Network Layer
+        I[Peer Nodes]
+    end
+
+    A -->|REST API| B
+    B --> D
+    B --> E
+    B --> F
+    B --> G
+
+    D --> H
+    E --> H
+
+    C --> I
+    D --> C
 ```
 
 ### Architecture Layers
@@ -64,7 +100,7 @@ XYPHER-CRYPTOCURRENCY/
 │ ├── wallet.ts             # Wallet & key management
 │ ├── util.ts               # Hashing & helpers
 │ └── main.ts               # App entry point
-│├── xypther-ui/              Angular Frontend
+|── xypther-ui/              Angular Frontend
 │   └── src/
 │       └── app/
 │           ├── core/
@@ -135,7 +171,19 @@ HTTP_PORT=3002 P2P_PORT=6002 npm start
 ```
 ## API Endpoints
 ```
-GET            /blocks Retrieve fullblockchain
+GET                     /blocks Retrieve                            fullblockchain
+```
+```
+POST	                /mineBlock	                                Mine new block
+```
+```
+POST	                /sendTransaction	                    Create transaction
+```
+```
+GET	                    /peers	                              List connected peers
+```
+```
+POST	                /addPeer	                           Connect to new peer
 ```
 <hr>
 
