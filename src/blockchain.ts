@@ -5,6 +5,19 @@ import {hexToBinary} from './util';
 import {getCoinbaseTransaction, isValidAddress, processTransactions, Transaction, UnspentTxOut, getTransactionFee } from './transaction';
 import {addToTransactionPool, getTransactionPool, updateTransactionPool} from './transactionPool';
 import {createTransaction, findUnspentTxOuts, getBalance, getPrivateFromWallet, getPublicFromWallet} from './wallet';
+import { BlockModel } from './models/block.model';
+
+export async function loadBlockchain() {
+  const blocks = await BlockModel.find().sort({ index: 1 });
+  if (blocks.length > 0) {
+    blockchain = blocks as unknown as Block[];
+  }
+}
+
+async function persistBlock(block: Block){
+    await BlockModel.create(block);
+}
+
 
 class Block {
 
@@ -106,14 +119,14 @@ const getCurrentTimestamp = (): number => Math.round(new Date().getTime() / 1000
 const calculateHash = (index: number, previousHash: string, timestamp: number, data: Transaction[], difficulty: number, nonce: number): string =>
     CryptoJS.SHA256(index + previousHash + timestamp + data + difficulty + nonce).toString();
 
-const generateRawNextBlock = (blockData: Transaction[]) => {
+const generateRawNextBlock = async (blockData: Transaction[]) => {
     const previousBlock: Block = getLatestBlock();
     const difficulty: number = getDifficulty(getBlockchain());
     console.log('difficulty: ' + difficulty);
     const nextIndex: number = previousBlock.index + 1; // index +1
     const nextTimestamp: number = getCurrentTimestamp();
     const newBlock: Block = findBlock(nextIndex, previousBlock.hash, nextTimestamp, blockData, difficulty);
-   if (addBlockToChain(newBlock)) {
+   if (await addBlockToChain(newBlock)) {
     broadcastLatest();
     return newBlock;
    } else {
@@ -314,7 +327,7 @@ const isValidChain = (blockchainToValidate: Block[]): UnspentTxOut[] | null => {
     return aUnspentTxOuts;
 };
 
-const addBlockToChain = (newBlock: Block): boolean => {
+const addBlockToChain = async (newBlock: Block): Promise<boolean> => {
     if (isValidNewBlock(newBlock, getLatestBlock())) {
         const retVal = processTransactions(newBlock.data, getUnspentTxOuts(), newBlock.index);
             if (retVal === null) {
@@ -325,8 +338,10 @@ const addBlockToChain = (newBlock: Block): boolean => {
                 setUnspentTxOuts(retVal);
                 updateTransactionPool(unspentTxOuts);
                 return true;
-
             }
+
+            await persistBlock(newBlock);
+            return true;
     }
     return false;
 };
@@ -354,6 +369,9 @@ const replaceChain = (newBlocks: Block[]) => {
         console.log('Received blockchain invalid');
     }
 };
+
+
+
 
 const handleReceivedTransaction = (transaction: Transaction) => {
     addToTransactionPool(transaction, getUnspentTxOuts());

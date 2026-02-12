@@ -10,6 +10,7 @@ import {
     getBlockchain,
     getMyUnspentTransactionOutputs,
     getUnspentTxOuts,
+    loadBlockchain,
     sendTransaction
 } from './blockchain';
 import { connectToPeers, getSockets, initP2PServer } from './p2p';
@@ -25,7 +26,7 @@ const p2pPort: number = parseInt(process.env.P2P_PORT ?? '6001', 10);
 const initHttpServer = (myHttpPort: number) => {
     const app = express();
     app.use(cors({
-        origin: 'http//localhost:4200', 
+        origin: 'http://localhost:4200', 
         credentials: true
     }));
 
@@ -78,9 +79,10 @@ const initHttpServer = (myHttpPort: number) => {
     });
 
 
-      app.post('/mineBlock', (req: Request, res: Response) => {
-        const newBlock: Block | null = generateNextBlock();
-        if (newBlock === null) {
+      app.post('/mineBlock', async (req: Request, res: Response) => {
+        const newBlock: Block | null = await generateNextBlock();
+
+        if (!newBlock) {
             res.status(400).send('could not generate block');
         } else {
             res.send(newBlock);
@@ -88,14 +90,16 @@ const initHttpServer = (myHttpPort: number) => {
     });
 
     // Mine a raw block
-    app.post('/mineRawBlock', (req: Request, res: Response) => {
+    app.post('/mineRawBlock', async (req: Request, res: Response) => {
         const data = req.body.data;
-        if (data == null) {
+
+        if (!data) {
             res.status(400).send('data parameter is missing');
             return;
-        }
+         }
 
-        const newBlock: Block | null = generateRawNextBlock(data);
+        const newBlock: Block | null = await generateRawNextBlock(data);
+
         if (!newBlock) {
             res.status(400).send('could not generate block');
         } else {
@@ -104,19 +108,18 @@ const initHttpServer = (myHttpPort: number) => {
     });
 
     // Mine a block with transaction
-    app.post('/mineTransaction', (req: Request, res: Response) => {
+    app.post('/mineTransaction', async (req: Request, res: Response) => {
         const { address, amount } = req.body;
-        console.log(req.body);
+
         if (!address || amount == null) {
             res.status(400).send('address or amount missing');
             return;
         }
 
         try {
-            const newBlock = generatenextBlockWithTransaction(address, amount);
+            const newBlock = await generatenextBlockWithTransaction(address, amount);
             res.send(newBlock);
         } catch (e: any) {
-            console.error(e.message);
             res.status(400).send(e.message);
         }
     });
@@ -183,7 +186,20 @@ const initHttpServer = (myHttpPort: number) => {
 };
 
 // Initialize servers and wallet
-connectDB(); 
-initHttpServer(httpPort);
-initP2PServer(p2pPort);
-initWallet();
+const startServer = async () => {
+    try {
+        await connectDB();
+        await loadBlockchain();
+
+        initWallet();
+        initHttpServer(httpPort);
+        initP2PServer(p2pPort);
+
+        console.log("🚀 Xypher node running");
+    } catch (err) {
+        console.error("❌ Failed to start server:", err);
+        process.exit(1);
+    }
+};
+
+startServer();
