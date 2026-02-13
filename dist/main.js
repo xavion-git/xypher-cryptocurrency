@@ -43,10 +43,16 @@ const blockchain_1 = require("./blockchain");
 const p2p_1 = require("./p2p");
 const transactionPool_1 = require("./transactionPool");
 const wallet_1 = require("./wallet");
+const cors_1 = __importDefault(require("cors"));
+const database_1 = require("./database");
 const httpPort = parseInt(process.env.HTTP_PORT ?? '3001', 10);
 const p2pPort = parseInt(process.env.P2P_PORT ?? '6001', 10);
 const initHttpServer = (myHttpPort) => {
     const app = (0, express_1.default)();
+    app.use((0, cors_1.default)({
+        origin: 'http://localhost:4200',
+        credentials: true
+    }));
     app.use(bodyParser.json());
     // Global error handler
     app.use((err, req, res, next) => {
@@ -88,9 +94,9 @@ const initHttpServer = (myHttpPort) => {
         const unspentTxOuts = lodash_1.default.filter((0, blockchain_1.getUnspentTxOuts)(), (uTxO) => uTxO.address === req.params.address);
         res.send({ 'unspentTxOuts': unspentTxOuts });
     });
-    app.post('/mineBlock', (req, res) => {
-        const newBlock = (0, blockchain_1.generateNextBlock)();
-        if (newBlock === null) {
+    app.post('/mineBlock', async (req, res) => {
+        const newBlock = await (0, blockchain_1.generateNextBlock)();
+        if (!newBlock) {
             res.status(400).send('could not generate block');
         }
         else {
@@ -98,13 +104,13 @@ const initHttpServer = (myHttpPort) => {
         }
     });
     // Mine a raw block
-    app.post('/mineRawBlock', (req, res) => {
+    app.post('/mineRawBlock', async (req, res) => {
         const data = req.body.data;
-        if (data == null) {
+        if (!data) {
             res.status(400).send('data parameter is missing');
             return;
         }
-        const newBlock = (0, blockchain_1.generateRawNextBlock)(data);
+        const newBlock = await (0, blockchain_1.generateRawNextBlock)(data);
         if (!newBlock) {
             res.status(400).send('could not generate block');
         }
@@ -113,19 +119,17 @@ const initHttpServer = (myHttpPort) => {
         }
     });
     // Mine a block with transaction
-    app.post('/mineTransaction', (req, res) => {
+    app.post('/mineTransaction', async (req, res) => {
         const { address, amount } = req.body;
-        console.log(req.body);
         if (!address || amount == null) {
             res.status(400).send('address or amount missing');
             return;
         }
         try {
-            const newBlock = (0, blockchain_1.generatenextBlockWithTransaction)(address, amount);
+            const newBlock = await (0, blockchain_1.generatenextBlockWithTransaction)(address, amount);
             res.send(newBlock);
         }
         catch (e) {
-            console.error(e.message);
             res.status(400).send(e.message);
         }
     });
@@ -180,7 +184,19 @@ const initHttpServer = (myHttpPort) => {
     });
 };
 // Initialize servers and wallet
-initHttpServer(httpPort);
-(0, p2p_1.initP2PServer)(p2pPort);
-(0, wallet_1.initWallet)();
+const startServer = async () => {
+    try {
+        await (0, database_1.connectDB)();
+        await (0, blockchain_1.loadBlockchain)();
+        (0, wallet_1.initWallet)();
+        initHttpServer(httpPort);
+        (0, p2p_1.initP2PServer)(p2pPort);
+        console.log("🚀 Xypher node running");
+    }
+    catch (err) {
+        console.error("❌ Failed to start server:", err);
+        process.exit(1);
+    }
+};
+startServer();
 //# sourceMappingURL=main.js.map

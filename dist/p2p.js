@@ -125,7 +125,7 @@ const initErrorHandler = (ws) => {
     ws.on('close', () => closeConnection(ws));
     ws.on('error', () => closeConnection(ws));
 };
-const handleBlockchainResponse = (receivedBlocks) => {
+const handleBlockchainResponse = async (receivedBlocks) => {
     if (receivedBlocks.length === 0) {
         console.log('received block chain size of 0');
         return;
@@ -140,7 +140,7 @@ const handleBlockchainResponse = (receivedBlocks) => {
         console.log('blockchain possibly behind. We got: '
             + latestBlockHeld.index + ' Peer got: ' + latestBlockReceived.index);
         if (latestBlockHeld.hash === latestBlockReceived.previousHash) {
-            if ((0, blockchain_1.addBlockToChain)(latestBlockReceived)) {
+            if (await (0, blockchain_1.addBlockToChain)(latestBlockReceived)) {
                 broadcast(responseLatestMsg());
             }
         }

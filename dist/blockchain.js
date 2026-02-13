@@ -37,6 +37,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.addBlockToChain = exports.replaceChain = exports.isValidBlockStructure = exports.getAccountBalance = exports.getMyUnspentTransactionOutputs = exports.handleReceivedTransaction = exports.generatenextBlockWithTransaction = exports.generateNextBlock = exports.generateRawNextBlock = exports.sendTransaction = exports.getLatestBlock = exports.getUnspentTxOuts = exports.getBlockchain = exports.Block = void 0;
+exports.loadBlockchain = loadBlockchain;
 const CryptoJS = __importStar(require("crypto-js"));
 const lodash_1 = __importDefault(require("lodash"));
 const p2p_1 = require("./p2p");
@@ -44,6 +45,16 @@ const util_1 = require("./util");
 const transaction_1 = require("./transaction");
 const transactionPool_1 = require("./transactionPool");
 const wallet_1 = require("./wallet");
+const block_model_1 = require("./models/block.model");
+async function loadBlockchain() {
+    const blocks = await block_model_1.BlockModel.find().sort({ index: 1 });
+    if (blocks.length > 0) {
+        blockchain = blocks;
+    }
+}
+async function persistBlock(block) {
+    await block_model_1.BlockModel.create(block);
+}
 class Block {
     constructor(index, hash, previousHash, timestamp, data, difficulty, nonce) {
         this.index = index;
@@ -118,14 +129,14 @@ const getAdjustedDifficulty = (latestBlock, aBlockchain) => {
 const getCurrentTimestamp = () => Math.round(new Date().getTime() / 1000);
 // calculates the hash using the index, previousHash, timestamp, and the data 
 const calculateHash = (index, previousHash, timestamp, data, difficulty, nonce) => CryptoJS.SHA256(index + previousHash + timestamp + data + difficulty + nonce).toString();
-const generateRawNextBlock = (blockData) => {
+const generateRawNextBlock = async (blockData) => {
     const previousBlock = getLatestBlock();
     const difficulty = getDifficulty(getBlockchain());
     console.log('difficulty: ' + difficulty);
     const nextIndex = previousBlock.index + 1; // index +1
     const nextTimestamp = getCurrentTimestamp();
     const newBlock = findBlock(nextIndex, previousBlock.hash, nextTimestamp, blockData, difficulty);
-    if (addBlockToChain(newBlock)) {
+    if (await addBlockToChain(newBlock)) {
         (0, p2p_1.broadcastLatest)();
         return newBlock;
     }
@@ -290,7 +301,7 @@ const isValidChain = (blockchainToValidate) => {
     }
     return aUnspentTxOuts;
 };
-const addBlockToChain = (newBlock) => {
+const addBlockToChain = async (newBlock) => {
     if (isValidNewBlock(newBlock, getLatestBlock())) {
         const retVal = (0, transaction_1.processTransactions)(newBlock.data, getUnspentTxOuts(), newBlock.index);
         if (retVal === null) {
@@ -303,6 +314,8 @@ const addBlockToChain = (newBlock) => {
             (0, transactionPool_1.updateTransactionPool)(unspentTxOuts);
             return true;
         }
+        await persistBlock(newBlock);
+        return true;
     }
     return false;
 };

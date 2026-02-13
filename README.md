@@ -14,13 +14,7 @@ This system simulates a complete Web3 environment where nodes maintain consensus
 - REST API for node interaction.  
 - Angular dashboard for blockchain visualization.  
 - Real-time network updates.  
-- Modular and scalable architecture.
-
-## Dashboard
-
-![pop-up](<img/Screenshot 2026-02-11 195949.png>)
-
-## System Architecture
+- Modular and scalable architecture. Architecture
 ```
 flowchart LR
 

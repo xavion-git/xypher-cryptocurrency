@@ -136,7 +136,7 @@ const initErrorHandler = (ws: WebSocket) => {
     ws.on('error', () => closeConnection(ws));
 };
 
-const handleBlockchainResponse = (receivedBlocks: Block[]) => {
+const handleBlockchainResponse = async (receivedBlocks: Block[]) => {
     if (receivedBlocks.length === 0) {
         console.log('received block chain size of 0');
         return;
@@ -151,7 +151,7 @@ const handleBlockchainResponse = (receivedBlocks: Block[]) => {
         console.log('blockchain possibly behind. We got: '
             + latestBlockHeld.index + ' Peer got: ' + latestBlockReceived.index);
         if (latestBlockHeld.hash === latestBlockReceived.previousHash) {
-            if (addBlockToChain(latestBlockReceived)) {
+            if (await addBlockToChain(latestBlockReceived)) {
                 broadcast(responseLatestMsg());
             }
         } else if (receivedBlocks.length === 1) {
