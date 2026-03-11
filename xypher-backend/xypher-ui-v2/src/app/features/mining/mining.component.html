@@ -1,0 +1,37 @@
+<div class="container">
+  <div class="header">
+    <h1>Mining</h1>
+  </div>
+
+  <div class="mining-section">
+    <div class="mining-icon">⛏️</div>
+    <h3>Mine New Block</h3>
+    <p>Mine a new block and earn 50 XYP + transaction fees</p>
+
+    <div *ngIf="miningResult" class="alert" [class.alert-success]="!miningError" [class.alert-error]="miningError">
+      {{ miningResult }}
+    </div>
+
+    <button class="btn btn-primary" (click)="startMining()" [disabled]="mining">
+      <span *ngIf="!mining">⛏️ Start Mining</span>
+      <span *ngIf="mining"><span class="loading-spinner"></span> Mining in Progress...</span>
+    </button>
+  </div>
+
+  <div class="section">
+    <h2>⏳ Transaction Pool</h2>
+    <div *ngFor="let tx of transactionPool$ | async" class="transaction-item">
+      <div class="tx-id">TX: {{ tx.id.substring(0, 32) }}...</div>
+      <div class="tx-details">
+        <span class="tx-from-to">{{ tx.txIns.length }} input(s) → {{ tx.txOuts.length }} output(s)</span>
+        <span class="tx-amount">
+          {{ tx.txOuts[0]?.amount ?? 0 }} XYP
+        </span>
+      </div>
+    </div>
+    <div *ngIf="(transactionPool$ | async)?.length === 0" class="empty-state">
+      <div class="empty-state-icon">⏳</div>
+      <p>No pending transactions</p>
+    </div>
+  </div>
+</div>

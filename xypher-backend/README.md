@@ -9,7 +9,25 @@ This system simulates a complete Web3 environment where nodes maintain consensus
 - Custom blockchain implementation in TypeScript.  
 - Proof-of-Work mining with adjustable difficulty.  
 - Peer-to-peer network synchronization using WebSockets.  
-- Transaction validation and mempool management.  ubgraph Core Blockchain Engine
+- Transaction validation and mempool management.  
+- ECDSA wallet generation and digital signatures.  
+- REST API for node interaction.  
+- Angular dashboard for blockchain visualization.  
+- Real-time network updates.  
+- Modular and scalable architecture. Architecture
+```
+flowchart LR
+
+    subgraph Client Layer
+        A[Angular App<br>xypher-ui]
+    end
+
+    subgraph API Layer
+        B[Express HTTP Server]
+        C[P2P Server]
+    end
+
+    subgraph Core Blockchain Engine
         D[Blockchain Logic]
         E[Transaction System]
         F[Wallet System]

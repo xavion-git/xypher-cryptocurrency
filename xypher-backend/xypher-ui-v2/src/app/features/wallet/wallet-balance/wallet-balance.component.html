@@ -1,0 +1,11 @@
+<div class="wallet-card">
+  <h2>Your Wallet</h2>
+  <div class="balance">
+    <label>Balance</label>
+    <div class="amount">{{ (balance$ | async) ?? 0 }} <span style="font-size:18px;color:#A0A0A0">XYP</span></div>
+  </div>
+  <div class="address">
+    <label>Address</label>
+    <div class="addr-text">{{ (address$ | async) || 'Loading...' }}</div>
+  </div>
+</div>

@@ -1,0 +1,72 @@
+<div class="container">
+  <div class="header">
+    <h1>Dashboard</h1>
+    <button (click)="refresh()" class="refresh-btn">↻ Refresh</button>
+  </div>
+
+  <!-- Offline warning -->
+  <div *ngIf="offline" class="alert alert-error">
+    ⚠️ Cannot connect to Xypher node. Make sure the backend is running on port 3001.
+  </div>
+
+  <!-- Wallet Card -->
+  <div class="wallet-card">
+    <h2>Your Wallet</h2>
+    <div class="balance">
+      <label>Balance</label>
+      <div class="amount">{{ (balance$ | async) ?? 0 }} <span style="font-size:20px;color:#A0A0A0">XYP</span></div>
+    </div>
+    <div class="address">
+      <label>Address</label>
+      <div class="addr-text">{{ address$ | async }}</div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">⬡</div>
+      <div class="stat-content">
+        <div class="stat-label">Total Blocks</div>
+        <div class="stat-value">{{ networkStats.totalBlocks }}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⚡</div>
+      <div class="stat-content">
+        <div class="stat-label">Difficulty</div>
+        <div class="stat-value">{{ networkStats.difficulty }}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⏳</div>
+      <div class="stat-content">
+        <div class="stat-label">Pending Transactions</div>
+        <div class="stat-value">{{ networkStats.pendingTransactions }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Latest Blocks -->
+  <div class="section">
+    <h2>Latest Blocks</h2>
+    <div *ngIf="latestBlocks.length === 0" class="empty-state">
+      <div class="empty-state-icon">⬡</div>
+      <p>No blocks yet</p>
+    </div>
+    <div *ngFor="let block of latestBlocks" class="block-item">
+      <div class="block-header">
+        <span class="block-index">#{{ block.index }}</span>
+        <span class="block-time">{{ block.timestamp * 1000 | date:'medium' }}</span>
+      </div>
+      <div class="block-hash">
+        <label>Hash:</label>
+        <span>{{ block.hash }}</span>
+      </div>
+      <div class="block-txs">
+        <span class="badge">{{ block.data.length }} transaction(s)</span>
+        <span class="badge">Difficulty: {{ block.difficulty }}</span>
+      </div>
+    </div>
+  </div>
+</div>

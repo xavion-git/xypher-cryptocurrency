@@ -1,0 +1,55 @@
+<div class="network-container">
+  <div class="header">
+    <h1>Network</h1>
+  </div>
+
+  <div class="section">
+    <h2> Connected Peers</h2>
+    
+    <div *ngIf="loading">Loading peers...</div>
+    
+    <ul class="peer-list" *ngIf="!loading">
+      <li *ngFor="let peer of peers" class="peer-item">
+        <div>
+          <span class="status-dot"></span>
+          <span class="peer-address">{{ peer }}</span>
+        </div>
+        <span class="status-text">Connected</span>
+      </li>
+      
+      <li *ngIf="peers.length === 0" class="empty-state">
+        No peers connected
+      </li>
+    </ul>
+
+    <div class="add-peer-form">
+      <input 
+        type="text" 
+        [(ngModel)]="newPeerAddress"
+        class="form-control" 
+        placeholder="ws://peer-address:port"
+      >
+      <button class="btn btn-primary" (click)="addPeer()">Add Peer</button>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon"></div>
+      <div class="stat-content">
+        <div class="stat-label">Active Peers</div>
+        <div class="stat-value">{{ peers.length }}</div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-icon"></div>
+      <div class="stat-content">
+        <div class="stat-label">Network Status</div>
+        <div class="stat-value" [class.online]="peers.length > 0">
+          {{ peers.length > 0 ? 'Online' : 'Offline' }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
