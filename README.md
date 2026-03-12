@@ -1,6 +1,6 @@
 <div align="center">
 
-# ⛓ XYPHER
+# Xypher CryptoCurrency 
 
 ### A Fast, Secure & Decentralized Cryptocurrency — Built From Scratch
 
@@ -30,7 +30,7 @@ Xypher is a full-stack blockchain implementation demonstrating core Web3 archite
 
 ---
 
-## 🏗 Architecture
+##  Architecture
 
 Xypher is organized into five clean layers:
 
@@ -152,7 +152,7 @@ Open `http://localhost:4200` in your browser.
 
 ---
 
-## 🔌 API Reference
+##  API Reference
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -166,7 +166,7 @@ Open `http://localhost:4200` in your browser.
 
 ---
 
-## ⛓ How It Works
+## How It Works
 
 ### Block Structure
 
@@ -229,7 +229,7 @@ This makes block creation computationally expensive and tamper-resistant, while 
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 Contributions are welcome! To get started:
 
