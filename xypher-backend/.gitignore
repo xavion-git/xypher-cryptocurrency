@@ -1,5 +1,36 @@
-node_modules/
-dist/
-.env
-node/wallet/private_key
+
+
+
 *.js.map
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Build outputs
+dist/
+*/dist/
+.angular/
+*/.angular/
+
+# Environment files
+.env
+*.env
+node/wallet/private_key
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Testing
+coverage/
+*.lcov

@@ -1,0 +1,64 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - 'v*'
+
+jobs:
+  deploy-docker:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    
+    - name: Build and push backend
+      uses: docker/build-push-action@v5
+      with:
+        context: ./backend
+        push: true
+        tags: |
+          ${{ secrets.DOCKER_USERNAME }}/xypher-backend:latest
+          ${{ secrets.DOCKER_USERNAME }}/xypher-backend:${{ github.sha }}
+        cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/xypher-backend:latest
+        cache-to: type=inline
+    
+    - name: Build and push frontend
+      uses: docker/build-push-action@v5
+      with:
+        context: ./xypher-ui
+        push: true
+        tags: |
+          ${{ secrets.DOCKER_USERNAME }}/xypher-frontend:latest
+          ${{ secrets.DOCKER_USERNAME }}/xypher-frontend:${{ github.sha }}
+        cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/xypher-frontend:latest
+        cache-to: type=inline
+
+  deploy-to-server:
+    runs-on: ubuntu-latest
+    needs: deploy-docker
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Deploy to production server
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.DEPLOY_HOST }}
+        username: ${{ secrets.DEPLOY_USER }}
+        key: ${{ secrets.DEPLOY_SSH_KEY }}
+        script: |
+          cd /opt/xypher-cryptocurrency
+          docker-compose pull
+          docker-compose up -d
+          docker system prune -f

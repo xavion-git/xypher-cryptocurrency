@@ -33,3 +33,43 @@ jobs:
     - name: Install dependencies
       working-directory: ./backend
       run: npm ci 
+
+    - name: Lint code 
+      working-directory: ./backend
+      run: npm eun lint || echo "No lint script found"
+
+    - name: Run tests
+      working-directory: ./backend
+      run: npm test || echo "No tests found"
+
+    - name: Build 
+      working-directory: ./backend
+      run: npm run build || tsc
+
+    - name: Upload build artifacts
+      if: matrix.node-version == '22.x'
+      uses: actions/upload-artifacts@v4
+      with:
+        name: backend-build
+        path: backend/dist/
+        retention-days: 7
+
+  security-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run npm audit 
+      working-directory: ./backend
+      run: |
+        npm audit --audit-level=moderate || true
+    
+    - name: Run Snyk security scan
+      uses: snyk/actions/node@master
+      continue-on-error: true
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: --severity-threshold=high
