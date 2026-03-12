@@ -1,208 +1,256 @@
+<div align="center">
 
-![pop-up](<img/Screenshot 2026-02-11 223933.png>)
-<hr>
-Xypher is a fast, secure, and decentralized cryptocurrency built from scratch using TypeScript and Node.js. The project demonstrates core blockchain architecture, peer-to-peer networking, cryptographic security, and a real-time Angular dashboard for interacting with the network.
+# ⛓ XYPHER
 
-This system simulates a complete Web3 environment where nodes maintain consensus, transactions are validated, and users manage wallets with full ownership of their digital assets.
+### A Fast, Secure & Decentralized Cryptocurrency — Built From Scratch
 
-## Features 
-- Custom blockchain implementation in TypeScript.  
-- Proof-of-Work mining with adjustable difficulty.  
-- Peer-to-peer network synchronization using WebSockets.  
-- Transaction validation and mempool management.  ubgraph Core Blockchain Engine
-        D[Blockchain Logic]
-        E[Transaction System]
-        F[Wallet System]
-        G[Mining Engine]
-    end
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-20.x-339933?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Angular](https://img.shields.io/badge/Angular-17.x-DD0031?style=flat-square&logo=angular&logoColor=white)](https://angular.io/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-7.x-47A248?style=flat-square&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](./LICENSE)
 
-    subgraph Data Layer
-        H[(MongoDB Database)]
-    end
+Xypher is a full-stack blockchain implementation demonstrating core Web3 architecture — from cryptographic hashing and Proof-of-Work mining to peer-to-peer synchronization and a real-time Angular dashboard.
 
-    subgraph Network Layer
-        I[Peer Nodes]
-    end
+![Xypher Dashboard](<./xypher-backend/img/xypher-titanium.svg>)
 
-    A -->|REST API| B
-    B --> D
-    B --> E
-    B --> F
-    B --> G
+</div>
 
-    D --> H
-    E --> H
+---
 
-    C --> I
-    D --> C
+##  Features
+
+- **Custom Blockchain** — Block creation, validation, and chain integrity built in pure TypeScript
+- **Proof-of-Work Mining** — Adjustable difficulty with nonce-based puzzle solving
+- **P2P Networking** — Real-time node synchronization over WebSockets
+- **Transaction System** — ECDSA-signed transactions with mempool management
+- **Wallet System** — Public/private key generation with full balance tracking
+- **REST API** — External access to blockchain data and node controls
+- **Angular Dashboard** — Live blockchain explorer, wallet UI, and peer network monitor
+
+---
+
+## 🏗 Architecture
+
+Xypher is organized into five clean layers:
+
+```
+┌─────────────────────────────────────────────────────┐
+│                   Frontend Layer                     │
+│          Angular Dashboard  •  Blockchain Explorer   │
+└──────────────────────┬──────────────────────────────┘
+                       │ HTTP / WebSocket
+┌──────────────────────▼──────────────────────────────┐
+│                    API Layer                         │
+│              Express REST  •  Node Control           │
+└──────────┬───────────────────────────┬──────────────┘
+           │                           │
+┌──────────▼──────────┐   ┌────────────▼─────────────┐
+│  Blockchain Layer   │   │      Network Layer        │
+│  Block Creation     │   │  Peer Discovery           │
+│  PoW Mining         │   │  Chain Synchronization    │
+│  Chain Validation   │   │  Block Broadcasting       │
+└──────────┬──────────┘   └────────────┬─────────────┘
+           │                           │
+┌──────────▼──────────┐   ┌────────────▼─────────────┐
+│   Wallet Layer      │   │       Data Layer          │
+│  Key Generation     │   │       MongoDB             │
+│  TX Signing         │   │                           │
+│  Balance Tracking   │   │                           │
+└─────────────────────┘   └──────────────────────────┘
 ```
 
-### Architecture Layers
-<hr>
+---
 
-**Blockchain Layer**
-- Block creation and validation  
-- Hashing and chain integrity  
-- Proof-of-Work mining  
+##  File Structure
 
-**Network Layer**
-- Peer discovery and communication  
-- Blockchain synchronization  
-- Broadcast of new blocks  
-
-**Wallet Layer**
-- Public/private key generation  
-- Transaction signing  
-- Balance tracking  
-
-**API Layer**
-- External access to blockchain data  
-- Node control and monitoring  
-
-**Frontend Layer**
-- Blockchain explorer  
-- Wallet interface  
-- Transaction submission  
-- Peer network dashboard
-
-## File Structure 
 ```
 XYPHER-CRYPTOCURRENCY/
 ├── src/
-│ ├── blockchain.ts         # Block & chain logic
-│ ├── p2p.ts                # Peer-to-peer networking
-│ ├── transaction.ts        # Transactions & validation
-│ ├── transactionPool.ts    # Mempool handling
-│ ├── wallet.ts             # Wallet & key management
-│ ├── util.ts               # Hashing & helpers
-│ └── main.ts               # App entry point
-|── xypther-ui/              Angular Frontend
-│   └── src/
-│       └── app/
-│           ├── core/
-│           │   ├── services/
-│           │   │   ├── blockchain.service.ts
-│           │   │   ├── wallet.service.ts
-│           │   │   └── websocket.service.ts
-│           │   ├── models/
-│           │   │   ├── block.model.ts
-│           │   │   ├── transaction.model.ts
-│           │   │   └── wallet.model.ts
-│           │   └── interceptors/
-│           │       └── http-error.interceptor.ts
-│           │
-│           ├── features/
-│           │   ├── dashboard/
-│           │   │   └── dashboard.component.ts
-│           │   ├── wallet/
-│           │   │   ├── wallet-balance/
-│           │   │   └── send-transaction/
-│           │   ├── explorer/
-│           │   │   ├── block-list/
-│           │   │   ├── block-detail/
-│           │   │   └── transaction-detail/
-│           │   └── network/
-│           │       └── peer-list/
-│           │
-│           └── shared/
-│               ├── components/
-│               └── pipes/
-├── dist/                   # Compiled JavaScript output
-├── img/                    # Screenshots & diagrams
+│   ├── blockchain.ts        # Block & chain logic
+│   ├── p2p.ts               # Peer-to-peer networking
+│   ├── transaction.ts       # Transactions & validation
+│   ├── transactionPool.ts   # Mempool handling
+│   ├── wallet.ts            # Wallet & key management
+│   ├── util.ts              # Hashing & helpers
+│   └── main.ts              # App entry point
+│
+├── xypher-ui/               # Angular Frontend
+│   └── src/app/
+│       ├── core/
+│       │   ├── services/    # blockchain, wallet, websocket
+│       │   ├── models/      # block, transaction, wallet
+│       │   └── interceptors/
+│       ├── features/
+│       │   ├── dashboard/
+│       │   ├── wallet/      # balance & send-transaction
+│       │   ├── explorer/    # block-list, block-detail, tx-detail
+│       │   └── network/     # peer-list
+│       └── shared/
+│           ├── components/
+│           └── pipes/
+│
+├── dist/                    # Compiled JavaScript output
+├── img/                     # Screenshots & diagrams
 ├── package.json
 ├── tsconfig.json
-├── tslint.json
 └── README.md
 ```
-## Angular Dashboard
+
+---
+
+##  Getting Started
+
+### Prerequisites
+
+- Node.js `v20+`
+- npm `v9+`
+- MongoDB running locally (or a connection URI)
+
+### 1. Install Dependencies
+
+```bash
+npm install
 ```
-cd xypther-ui
+
+### 2. Build the Project
+
+```bash
+npm run build
+```
+
+### 3. Start a Node
+
+```bash
+npm start
+```
+
+### 4. Start Multiple Nodes *(Optional)*
+
+Simulate a real peer network by launching nodes on different ports:
+
+```bash
+# Terminal 1 (default)
+npm start
+
+# Terminal 2
+HTTP_PORT=3002 P2P_PORT=6002 npm start
+
+# Terminal 3
+HTTP_PORT=3003 P2P_PORT=6003 PEERS=ws://localhost:6001 npm start
+```
+
+### 5. Launch the Angular Dashboard
+
+```bash
+cd xypher-ui
 npm install
 ng serve
 ```
-## Tech Stack 
-- TypeScript – type-safe backend development
-- Node.js – runtime
-- CryptoJS – SHA-256 hashing
-- elliptic – ECDSA public-key cryptography
-- WebSocket (ws) – peer-to-peer networking
-- Express – REST API
 
-## ▶️ Getting Started
-### 1. Install Dependencies
-``` bash
-npm install
-```
-### 2. Build the Project 
-``` bash
-npm run build
-```
-### 3. start a Node 
-``` bash
-npm start
-```
-### 4.(Optional) Start Multiple Nodes
-``` bash
-HTTP_PORT=3002 P2P_PORT=6002 npm start
-```
-## API Endpoints
-```
-GET                     /blocks Retrieve                            fullblockchain
-```
-```
-POST	                /mineBlock	                                Mine new block
-```
-```
-POST	                /sendTransaction	                    Create transaction
-```
-```
-GET	                    /peers	                              List connected peers
-```
-```
-POST	                /addPeer	                           Connect to new peer
-```
-<hr>
+Open `http://localhost:4200` in your browser.
 
+---
 
-## Blockchain 
+## 🔌 API Reference
 
-The structure only include the most essential properties.
-- index : The height of the block in the blockchain
-- data: Any data that is included in the block.
-- timestamp: A timestamp
-- hash: A sha256 hash taken from the content of the block
-- previousHash: A reference to the hash of the previous block. This value explicitly defines the previous block.
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/blocks` | Retrieve the full blockchain |
+| `POST` | `/mineBlock` | Mine a new block |
+| `POST` | `/sendTransaction` | Create and broadcast a transaction |
+| `GET` | `/transactionPool` | View pending transactions in the mempool |
+| `GET` | `/peers` | List all connected peers |
+| `POST` | `/addPeer` | Connect to a new peer node |
+| `GET` | `/wallet/balance` | Get the current node's wallet balance |
 
-![pop-up](./img/Screenshot%202026-01-05%20170359.png)
+---
 
-### Block Hash
+## ⛓ How It Works
 
-One of the most critical parts of a cryptocurrency is **hashing**. In this project the hash is calculated over all data of the block. which means if anything in the block changes the original hash is no longer valid.
+### Block Structure
 
-The block hash can also be though of as a unique identifier. For Example if the blocks with the same index can happen, but they all have unique hashes.
+Each block contains the minimum set of properties needed to form a tamper-evident chain:
 
-![pop-up](./img/Screenshot%202026-01-05%20171818.png)
+| Property | Description |
+|----------|-------------|
+| `index` | The block's height in the chain |
+| `timestamp` | Unix timestamp of block creation |
+| `data` | Transaction data included in the block |
+| `hash` | SHA-256 hash of all block contents |
+| `previousHash` | Hash of the preceding block |
 
-## Node Communication
-An essential responsibility of each node is to share and synchronize the blockchain with other nodes in the network. To maintain consistency across the network, the following rules are applied:
-- When a node creates a new block, it broadcasts the block to all connected peers.
-- When a node connects to a new peer, it requests the peer’s latest block.
-- If a node receives a block with an index higher than its current latest block, it either appends the block to its chain or requests the full blockchain to resolve any discrepancies.
+![Block Structure](./xypher-backend/img/Screenshot%202026-01-05%20170359.png)
 
-![pop-up](./img/Screenshot%202026-01-05%20172831.png)
+### Block Hashing
 
-### Proof of Work Puzzle
-So far in the project we have made a simiple toy block chain that could add a block without cost. `Proof-of-work`can add some complexities before the block is added to the blockchain. In which solving this puzzle is known as **mining**.
-#### Difficulty/Nonce
-To understand why we need difficulty and nonce we will look at what the `Proof-of-work` puzzle is doing.
+The hash is computed over **all** block data — index, timestamp, data, previousHash, and nonce. Any modification to a block's contents produces a completely different hash, instantly invalidating the chain from that point forward. This is what makes the blockchain tamper-evident.
 
-To simplify the `Proof-of-work` puzzle is to find a block hash hat has a specific number of zeros prefixing it. 
+![Block Hash](./xypher-backend/img/Screenshot%202026-01-05%20171818.png)
 
-The **difficulty** property defines the number of zeros prefixing the block hash needs. In order for the block to be validated the zeros are checked from binary of the hash. 
+### Node Communication
 
-![pop-up](./img/Screenshot%202026-01-06%20192710.png)
+Each node maintains consensus by following these synchronization rules:
 
-To produce a hash that meets the difficulty requirement, we need a way to generate many different hashes from the same block data. This is achieved by changing the nonce value. Since SHA-256 is a cryptographic hash function, even a small change to the block’s contents results in a completely different hash. Mining is essentially the process of repeatedly adjusting the nonce and recalculating the hash until one is found that satisfies the difficulty target.
+1. **New block mined** → broadcast to all connected peers
+2. **New peer connects** → request the peer's latest block
+3. **Received block is ahead** → append it or request the full chain to resolve discrepancies
 
-## Architecture
-![pop-up](./img/ab88cdcc-1497-4daf-ad16-e89b632dc913.png)
+![Node Communication](./xypher-backend/img/Screenshot%202026-01-05%20172831.png)
+
+### Proof-of-Work
+
+Mining requires finding a block hash with a specific number of **leading zero bits**, as defined by the current `difficulty`. Since SHA-256 is deterministic, the only way to change the hash output is to change the input — which is done by incrementing the `nonce`.
+
+> Mining = repeatedly hashing `(blockData + nonce)` until the result satisfies the difficulty target.
+
+This makes block creation computationally expensive and tamper-resistant, while validation remains instant.
+
+![Proof of Work](./xypher-backend/img/Screenshot%202026-01-06%20192710.png)
+
+### Full Architecture Diagram
+
+![Architecture](./xypher-backend/img/ab88cdcc-1497-4daf-ad16-e89b632dc913.png)
+
+---
+
+## 🛠 Tech Stack
+
+| Layer | Technology | Purpose |
+|-------|-----------|---------|
+| Language | TypeScript | Type-safe backend development |
+| Runtime | Node.js | JavaScript execution environment |
+| API | Express | REST API server |
+| Networking | `ws` (WebSocket) | Peer-to-peer node communication |
+| Cryptography | `elliptic` | ECDSA public-key signing |
+| Hashing | `CryptoJS` | SHA-256 block hashing |
+| Database | MongoDB | Persistent blockchain storage |
+| Frontend | Angular 17 | Real-time dashboard UI |
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! To get started:
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/my-feature`
+3. Commit your changes: `git commit -m 'Add my feature'`
+4. Push to the branch: `git push origin feature/my-feature`
+5. Open a Pull Request
+
+Please ensure your code follows the existing TypeScript conventions and includes relevant tests where applicable.
+
+---
+
+## 📄 License
+
+This project is licensed under the [MIT License](./LICENSE).
+
+---
+
+<div align="center">
+
+Built with by the Xypher team
+
+</div>
