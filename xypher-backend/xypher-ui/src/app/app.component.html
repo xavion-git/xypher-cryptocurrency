@@ -1,17 +1,67 @@
-<nav class="navbar">
-  <div class="navbar-content">
-    <div class="logo">
-      <span class="logo-accent">✦</span>
-      <span>Xypher</span>
-    </div>
-    <ul class="nav-links">
-      <li><a routerLink="/dashboard" routerLinkActive="active">Dashboard</a></li>
-      <li><a routerLink="/wallet" routerLinkActive="active">Wallet</a></li>
-      <li><a routerLink="/explorer" routerLinkActive="active">Explorer</a></li>
-      <li><a routerLink="/mining" routerLinkActive="active">Mining</a></li>
-      <li><a routerLink="/network" routerLinkActive="active">Network</a></li>
-    </ul>
-  </div>
-</nav>
+<!-- Background slideshow -->
+<div class="bg-container">
+  <div class="bg-slide" [class.active]="currentBg === 0" style="background-image: url('assets/img/city1.jpg')"></div>
+  <div class="bg-slide" [class.active]="currentBg === 1" style="background-image: url('assets/img/city2.jpg')"></div>
+  <div class="bg-slide" [class.active]="currentBg === 2" style="background-image: url('assets/img/city3.jpg')"></div>
+  <div class="bg-slide" [class.active]="currentBg === 3" style="background-image: url('assets/img/city4.jpg')"></div>
+  <div class="bg-overlay"></div>
+</div>
 
-<router-outlet></router-outlet>
+<!-- Layout -->
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-box">X</div>
+      <span class="logo-name">Xypher</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+        <span class="material-symbols-outlined">grid_view</span>
+        Dashboard
+      </a>
+
+      <div class="nav-section-label">Finance</div>
+      <a routerLink="/wallet" routerLinkActive="active" class="nav-item">
+        <span class="material-symbols-outlined">account_balance_wallet</span>
+        Wallet
+      </a>
+
+      <div class="nav-section-label">Node</div>
+      <a routerLink="/mining" routerLinkActive="active" class="nav-item">
+        <span class="material-symbols-outlined">excavator</span>
+        Mining
+      </a>
+      <a routerLink="/network" routerLinkActive="active" class="nav-item">
+        <span class="material-symbols-outlined">hub</span>
+        Network
+      </a>
+      <a routerLink="/explorer" routerLinkActive="active" class="nav-item">
+        <span class="material-symbols-outlined">manage_search</span>
+        Explorer
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="avatar">XG</div>
+      <span class="avatar-name">xavion-git</span>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+
+</div>
+
+<!-- Slide dots -->
+<div class="slide-dots">
+  <span class="dot" [class.active]="currentBg === 0" (click)="goToSlide(0)"></span>
+  <span class="dot" [class.active]="currentBg === 1" (click)="goToSlide(1)"></span>
+  <span class="dot" [class.active]="currentBg === 2" (click)="goToSlide(2)"></span>
+  <span class="dot" [class.active]="currentBg === 3" (click)="goToSlide(3)"></span>
+</div>

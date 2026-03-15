@@ -7,7 +7,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { CoreModule } from './core/core.module';
 
-// Feature modules
 import { DashboardModule } from './features/dashboard/dashboard.module';
 import { WalletModule } from './features/wallet/wallet.module';
 import { ExplorerModule } from './features/explorer/explorer.module';
@@ -15,16 +14,15 @@ import { MiningModule } from './features/mining/mining.module';
 import { NetworkModule } from './features/network/network.module';
 
 @NgModule({
-  declarations: [
-    AppComponent
-  ],
+  declarations: [],
   imports: [
     BrowserModule,
-    AppRoutingModule,  
+    AppRoutingModule,
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
     CoreModule,
+    AppComponent,
     DashboardModule,
     WalletModule,
     ExplorerModule,
