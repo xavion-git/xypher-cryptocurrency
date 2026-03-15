@@ -1,35 +1,49 @@
-<div class="container">
-  <div class="block-explorer-search">
+<div class="block-list">
+
+  <!-- Search -->
+  <div class="glass search-card">
+    <span class="material-symbols-outlined search-icon">search</span>
     <input
       type="text"
       [(ngModel)]="searchTerm"
       class="search-input"
-      placeholder="Search by block hash or block number..."
+      placeholder="Search by block hash or number..."
     >
   </div>
 
-  <div *ngFor="let block of filteredBlocks$ | async" class="block-item">
-    <div class="block-header">
-      <span class="block-index">#{{ block.index }}</span>
-      <span class="block-time">{{ block.timestamp * 1000 | date:'medium' }}</span>
+  <!-- Blocks -->
+  <div class="glass blocks-card">
+    <div class="section-header">
+      <span class="material-symbols-outlined">stacks</span>
+      All Blocks
     </div>
-    <div class="block-hash">
-      <label>Hash:</label>
-      <span>{{ block.hash }}</span>
+
+    <div *ngFor="let block of filteredBlocks$ | async" class="block-row">
+      <div class="block-top">
+        <div class="block-left">
+          <span class="block-index">#{{ block.index }}</span>
+          <span class="block-time">{{ block.timestamp * 1000 | date:'medium' }}</span>
+        </div>
+        <div class="badges">
+          <span class="badge">{{ block.data.length }} tx</span>
+          <span class="badge">Diff: {{ block.difficulty }}</span>
+          <span class="badge">Nonce: {{ block.nonce }}</span>
+        </div>
+      </div>
+      <div class="block-hash">
+        <span class="hash-label">Hash</span>
+        <span class="hash-value">{{ block.hash }}</span>
+      </div>
+      <div class="block-hash">
+        <span class="hash-label">Prev</span>
+        <span class="hash-value">{{ block.previousHash || 'Genesis' }}</span>
+      </div>
     </div>
-    <div class="block-hash">
-      <label>Prev:</label>
-      <span>{{ block.previousHash || 'Genesis' }}</span>
-    </div>
-    <div class="block-txs">
-      <span class="badge">{{ block.data.length }} tx</span>
-      <span class="badge">Difficulty: {{ block.difficulty }}</span>
-      <span class="badge">Nonce: {{ block.nonce }}</span>
+
+    <div *ngIf="(filteredBlocks$ | async)?.length === 0" class="empty-state">
+      <span class="material-symbols-outlined empty-icon">stacks</span>
+      <p>No blocks found</p>
     </div>
   </div>
 
-  <div *ngIf="(filteredBlocks$ | async)?.length === 0" class="empty-state">
-    <div class="empty-state-icon">⬡</div>
-    <p>No blocks found</p>
-  </div>
 </div>
