@@ -5,8 +5,11 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:prod": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "docker:build": "docker build -t xypher-frontend .",
+    "docker:run": "docker run -p 80:80 xypher-frontend"
   },
   "prettier": {
     "printWidth": 100,
@@ -28,7 +31,7 @@
     "@angular/core": "^21.1.0",
     "@angular/forms": "^21.1.0",
     "@angular/platform-browser": "^21.1.0",
-    "@angular/platform-browser-dynamic": "^21.1.0",
+    "@angular/platform-browser-dynamic": "^21.1.3",
     "@angular/router": "^21.1.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"

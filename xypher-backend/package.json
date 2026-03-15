@@ -7,7 +7,12 @@
     "start": "node dist/main.js",
     "start:dev": "ts-node src/main.ts",
     "compile": "tsc",
-    "test": "node test.js"
+    "build": "tsc",
+    "test": "node test.js",
+    "docker:build": "docker build -t xypher-backend .",
+    "docker:run": "docker run -p 3001:3001 -p 6001:6001 xypher-backend",
+    "docker:compose": "docker-compose up -d",
+    "docker:compose:down": "docker-compose down"
   },
   "dependencies": {
     "body-parser": "^1.20.2",

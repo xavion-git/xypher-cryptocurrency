@@ -1,0 +1,85 @@
+
+services:
+  # MongoDB service
+  mongo:
+    image: mongo:6
+    container_name: xypher-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    restart: unless-stopped
+    networks:
+      - xypher-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # Backend service
+  backend:
+    build:
+      context: ./xypher-backend
+      dockerfile: ../Dockerfile
+    container_name: xypher-backend
+    ports:
+      - "3001:3001"   # HTTP API
+      - "6001:6001"   # P2P Network
+    environment:
+      - NODE_ENV=production
+      - HTTP_PORT=3001
+      - P2P_PORT=6001
+      - MONGO_URI=mongodb://mongo:27017/xypher
+    volumes:
+      - wallet-data:/app/node/wallet
+      - blockchain-data:/app/data
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - xypher-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/blocks', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend service
+  frontend:
+    build:
+      context: ./xypher-backend/xypher-ui
+      dockerfile: Dockerfile
+    container_name: xypher-frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - xypher-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# Named volumes for data persistence
+volumes:
+  mongo-data:
+    driver: local
+  wallet-data:
+    driver: local
+  blockchain-data:
+    driver: local
+
+# Custom network
+networks:
+  xypher-network:
+    driver: bridge
