@@ -1,13 +1,16 @@
-<div class="section">
-  <h2>Send Transaction</h2>
+<div class="glass send-card">
+  <div class="section-header">
+    <span class="material-symbols-outlined">send</span>
+    Send Transaction
+  </div>
 
   <div class="form-group">
-    <label>Recipient Address</label>
+    <label class="form-label">Recipient Address</label>
     <input
       type="text"
       [formControl]="recipientAddress"
       placeholder="Enter 130-character hex address"
-      class="form-control"
+      class="form-input"
       [class.error]="recipientAddress.invalid && recipientAddress.touched"
     >
     <div class="error-text" *ngIf="recipientAddress.invalid && recipientAddress.touched">
@@ -16,13 +19,13 @@
   </div>
 
   <div class="form-group">
-    <label>Amount (XYP)</label>
+    <label class="form-label">Amount (XYP)</label>
     <input
       type="number"
       [formControl]="amount"
       placeholder="0"
       min="1"
-      class="form-control"
+      class="form-input"
       [class.error]="amount.invalid && amount.touched"
     >
     <div class="error-text" *ngIf="amount.invalid && amount.touched">
@@ -32,18 +35,26 @@
 
   <div class="checkbox-group">
     <input type="checkbox" id="mineNow" [formControl]="mineImmediately">
-    <label for="mineNow">Mine immediately (confirm right away instead of waiting)</label>
+    <label for="mineNow">Mine immediately</label>
   </div>
 
-  <div class="alert alert-success" *ngIf="success">{{ success }}</div>
-  <div class="alert alert-error" *ngIf="error">{{ error }}</div>
+  <div class="alert alert-success" *ngIf="success">
+    <span class="material-symbols-outlined">check_circle</span>
+    {{ success }}
+  </div>
+  <div class="alert alert-error" *ngIf="error">
+    <span class="material-symbols-outlined">warning</span>
+    {{ error }}
+  </div>
 
-  <button
-    class="btn btn-primary"
-    (click)="onSubmit()"
-    [disabled]="recipientAddress.invalid || amount.invalid || loading"
-  >
-    <span *ngIf="!loading">Send XYP</span>
-    <span *ngIf="loading"><span class="loading-spinner"></span> Processing...</span>
+  <button class="send-btn" (click)="onSubmit()" [disabled]="recipientAddress.invalid || amount.invalid || loading">
+    <span *ngIf="!loading">
+      <span class="material-symbols-outlined">send</span>
+      Send XYP
+    </span>
+    <span *ngIf="loading">
+      <span class="material-symbols-outlined spinning">progress_activity</span>
+      Processing...
+    </span>
   </button>
 </div>
