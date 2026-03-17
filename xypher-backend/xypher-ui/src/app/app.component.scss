@@ -50,13 +50,9 @@
 }
 
 .sidebar-logo {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 20px 16px;
+  padding: 16px 0;
   border-bottom: 0.5px solid rgba(255, 255, 255, 0.07);
 }
-
 .logo-box {
   width: 26px;
   height: 26px;
@@ -69,6 +65,13 @@
   font-weight: 600;
   color: #000;
   flex-shrink: 0;
+}
+.logo-img {
+  width: 100%;
+  height: auto;
+  max-height: 80px;
+  object-fit: contain;
+  padding: 4px 10px;
 }
 
 .logo-name {
