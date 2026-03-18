@@ -109,12 +109,19 @@ const queryChainLengthMsg = (): Message => ({'type': MessageType.QUERY_LATEST, '
 const queryAllMsg = (): Message => ({'type': MessageType.QUERY_ALL, 'data': null});
 
 const responseChainMsg = (): Message => ({
-    'type': MessageType.RESPONSE_BLOCKCHAIN, 'data': JSON.stringify(getBlockchain())
+    'type': MessageType.RESPONSE_BLOCKCHAIN,
+    'data': JSON.stringify(getBlockchain().map((block: any) => {
+        const { _id, __v, ...clean } = block;
+        return clean;
+    }))
 });
 
 const responseLatestMsg = (): Message => ({
     'type': MessageType.RESPONSE_BLOCKCHAIN,
-    'data': JSON.stringify([getLatestBlock()])
+    'data': JSON.stringify([getBlockchain().map((block: any) => {
+        const { _id, __v, ...clean } = block;
+        return clean;
+    }).slice(-1)[0]])
 });
 
 const queryTransactionPoolMsg = (): Message => ({

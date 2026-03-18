@@ -30,8 +30,16 @@ export class Block {
 export async function loadBlockchain() {
     const blocks = await BlockModel.find().sort({ index: 1 });
     if (blocks.length > 0) {
-        blockchain = blocks as unknown as Block[];
-        // Rebuild unspent tx outs from persisted chain
+        const cleanBlocks = blocks.map((block: any) => {
+            const doc = block._doc || block;
+            const { _id, __v, $__, $isNew, ...clean } = doc;
+            return clean as Block;
+        });
+        // Prepend genesis block if not stored in DB
+        blockchain = cleanBlocks[0].index === 0
+            ? cleanBlocks
+            : [genesisBlock, ...cleanBlocks];
+
         let aUnspentTxOuts: UnspentTxOut[] = [];
         for (let i = 0; i < blockchain.length; i++) {
             const result = processTransactions(blockchain[i].data, aUnspentTxOuts, blockchain[i].index);
@@ -74,7 +82,11 @@ if (initialUnspentTxOuts === null) {
 }
 let unspentTxOuts: UnspentTxOut[] = initialUnspentTxOuts;
 
-const getBlockchain = (): Block[] => blockchain;
+const getBlockchain = (): Block[] => blockchain.map((block: any) => {
+    const doc = block._doc || block;
+    const { _id, __v, $__, $isNew, ...clean } = doc;
+    return clean as Block;
+});
 const getUnspentTxOuts = (): UnspentTxOut[] => _.cloneDeep(unspentTxOuts);
 const setUnspentTxOuts = (newUnspentTxOut: UnspentTxOut[]) => {
     if (!Array.isArray(newUnspentTxOut)) throw new Error('Invalid unspent transaction outputs');
@@ -240,16 +252,27 @@ const isValidBlockStructure = (block: Block): boolean =>
     && typeof block.data === 'object';
 
 const isValidChain = (blockchainToValidate: Block[]): UnspentTxOut[] | null => {
-    const isValidGenesis = (block: Block): boolean => JSON.stringify(block) === JSON.stringify(genesisBlock);
-    if (!isValidGenesis(blockchainToValidate[0])) return null;
-
+    const isValidGenesis = (block: Block): boolean => {
+        const { _id, __v, ...cleanBlock } = block as any;
+        return JSON.stringify(cleanBlock) === JSON.stringify(genesisBlock);
+    };
+    if (!isValidGenesis(blockchainToValidate[0])) {
+        console.log('Genesis block invalid');
+        console.log('Received:', JSON.stringify(blockchainToValidate[0]));
+        console.log('Expected:', JSON.stringify(genesisBlock));
+        return null;
+    }
     let aUnspentTxOuts: UnspentTxOut[] | null = [];
     for (let i = 0; i < blockchainToValidate.length; i++) {
         const currentBlock: Block = blockchainToValidate[i];
-        if (i !== 0 && !isValidNewBlock(blockchainToValidate[i], blockchainToValidate[i - 1])) return null;
+        if (i !== 0 && !isValidNewBlock(blockchainToValidate[i], blockchainToValidate[i - 1])) {
+            console.log('Block invalid at index:', i);
+            console.log('Block:', JSON.stringify(currentBlock));
+            return null;
+        }
         aUnspentTxOuts = processTransactions(currentBlock.data, aUnspentTxOuts, currentBlock.index);
         if (aUnspentTxOuts === null) {
-            console.log('invalid transactions in blockchain');
+            console.log('Invalid transactions at block index:', i);
             return null;
         }
     }
@@ -274,14 +297,19 @@ const addBlockToChain = async (newBlock: Block): Promise<boolean> => {
 };
 
 const replaceChain = (newBlocks: Block[]) => {
-    const aUnspentTxOuts = isValidChain(newBlocks);
+    // Strip MongoDB fields from received blocks
+    const cleanBlocks = newBlocks.map((block: any) => {
+        const { _id, __v, ...clean } = block;
+        return clean as Block;
+    });
+    const aUnspentTxOuts = isValidChain(cleanBlocks);
     if (aUnspentTxOuts === null) {
         console.log('Received blockchain invalid');
         return;
     }
-    if (getAccumulatedDifficulty(newBlocks) > getAccumulatedDifficulty(getBlockchain())) {
+    if (getAccumulatedDifficulty(cleanBlocks) > getAccumulatedDifficulty(getBlockchain())) {
         console.log('Replacing chain with longer valid chain');
-        blockchain = newBlocks;
+        blockchain = cleanBlocks;
         setUnspentTxOuts(aUnspentTxOuts);
         updateTransactionPool(aUnspentTxOuts);
         broadcastLatest();

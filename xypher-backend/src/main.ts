@@ -141,6 +141,20 @@ const startServer = async () => {
         initWallet();
         initHttpServer(httpPort);
         initP2PServer(p2pPort);
+
+        // Auto-connect to peers from PEERS env variable
+        // e.g. PEERS=ws://node1:6001,ws://node2:6001
+        const peers = process.env.PEERS ? process.env.PEERS.split(',') : [];
+        // Added retry delay so node 2 waits a seconds before connecting 
+        if (peers.length > 0) {
+            setTimeout(() => {
+                peers.forEach((peer: string) => {
+                    console.log(`🔗 Connecting to peer: ${peer}`);
+                    connectToPeers(peer.trim());
+                });
+            }, 5000); // wait 5 seconds for peers to be ready
+        }
+
         console.log('🚀 Xypher node running');
         console.log(`   HTTP:  http://localhost:${httpPort}`);
         console.log(`   P2P:   ws://localhost:${p2pPort}`);

@@ -47,7 +47,30 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-
+  # Peer 2 Peer
+  backend2:
+    build:
+      context: ./xypher-backend
+      dockerfile: ../Dockerfile
+    container_name: xypher-backend2
+    ports:
+      - "3002:3001"
+      - "6002:6001"
+    environment:
+      - NODE_ENV=production
+      - HTTP_PORT=3001
+      - P2P_PORT=6001
+      - MONGO_URI=mongodb://mongo:27017/xypher2
+      - PEERS=ws://backend:6001
+    depends_on:
+      mongo:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - xypher-network
+      
   # Frontend service
   frontend:
     build:
