@@ -61,6 +61,7 @@ async function persistBlock(block: Block): Promise<void> {
     }
 }
 
+// Origin of the blocktransactions takes in signature and output and input for UTXO transaction model 
 const genesisTransaction = {
     'txIns': [{ 'signature': '', 'txOutId': '', 'txOutIndex': 0 }],
     'txOuts': [{
