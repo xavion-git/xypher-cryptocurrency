@@ -27,17 +27,20 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: ./xypher-backend
+        file: ./Dockerfile                             
         push: true
         tags: |
           ${{ secrets.DOCKER_USERNAME }}/xypher-backend:latest
           ${{ secrets.DOCKER_USERNAME }}/xypher-backend:${{ github.sha }}
         cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/xypher-backend:latest
         cache-to: type=inline
+
     
     - name: Build and push frontend
       uses: docker/build-push-action@v5
       with:
         context: ./xypher-backend/xypher-ui
+        file: ./xypher-backend/xypher-ui/Dockerfile     
         push: true
         tags: |
           ${{ secrets.DOCKER_USERNAME }}/xypher-frontend:latest
