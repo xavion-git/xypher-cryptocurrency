@@ -2,14 +2,14 @@ name: Backend CI/CD
 
 on: 
   push: 
-    branches: [ main, develop ]    
+    branches: [ main, develop ]
     paths:
-      - 'backend/**'
+      - 'xypher-backend/**'
       - '.github/workflows/backend-ci.yml'
   pull_request:
     branches: [ main ]
     paths:
-      - 'backend/**'
+      - 'xypher-backend/**'
 
 jobs:
   test-and-build:
@@ -28,22 +28,22 @@ jobs:
       with: 
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-        cache-dependency-path: backend/package-lock.json
+        cache-dependency-path: xypher-backend/package-lock.json
 
     - name: Install dependencies
-      working-directory: ./backend
+      working-directory: ./xypher-backend
       run: npm ci 
 
     - name: Lint code 
-      working-directory: ./backend
-      run: npm run lint || echo "No lint script found"   
+      working-directory: ./xypher-backend
+      run: npm run lint || echo "No lint script found"
 
     - name: Run tests
-      working-directory: ./backend
+      working-directory: ./xypher-backend
       run: npm test || echo "No tests found"
 
     - name: Build 
-      working-directory: ./backend
+      working-directory: ./xypher-backend
       run: npm run build || tsc
 
     - name: Upload build artifacts
@@ -51,7 +51,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: backend-build
-        path: backend/dist/
+        path: xypher-backend/dist/
         retention-days: 7
 
   security-scan:
@@ -66,14 +66,14 @@ jobs:
       with:
         node-version: '22.x'
         cache: 'npm'
-        cache-dependency-path: backend/package-lock.json
+        cache-dependency-path: xypher-backend/package-lock.json
 
-    - name: Install dependencies        
-      working-directory: ./backend
+    - name: Install dependencies
+      working-directory: ./xypher-backend
       run: npm ci
 
-    - name: Run npm audit                
-      working-directory: ./backend
+    - name: Run npm audit
+      working-directory: ./xypher-backend
       run: npm audit --audit-level=moderate || true
     
     - name: Run Snyk security scan
