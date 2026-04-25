@@ -2,7 +2,7 @@ name: Backend CI/CD
 
 on: 
   push: 
-    branches: [ main, devlop ]
+    branches: [ main, develop ]    
     paths:
       - 'backend/**'
       - '.github/workflows/backend-ci.yml'
@@ -12,7 +12,7 @@ on:
       - 'backend/**'
 
 jobs:
-  test-and-bulid:
+  test-and-build:
     runs-on: ubuntu-latest
 
     strategy:
@@ -36,7 +36,7 @@ jobs:
 
     - name: Lint code 
       working-directory: ./backend
-      run: npm eun lint || echo "No lint script found"
+      run: npm run lint || echo "No lint script found"   
 
     - name: Run tests
       working-directory: ./backend
@@ -61,7 +61,19 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Run npm audit 
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+
+    - name: Install dependencies        
+      working-directory: ./backend
+      run: npm ci
+
+    - name: Run npm audit                
+      working-directory: ./backend
       run: npm audit --audit-level=moderate || true
     
     - name: Run Snyk security scan

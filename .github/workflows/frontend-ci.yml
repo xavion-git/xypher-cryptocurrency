@@ -48,13 +48,12 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: frontend-build
-        path: xypher-ui/dist/
+        path: xypher-ui/dist/xypher-ui/   
         retention-days: 7
     
     - name: Run bundle size analysis
       working-directory: ./xypher-ui
-      run: |
-        du -sh dist/* || echo "Build size check"
+      run: du -sh dist/* || echo "Build size check"
 
   lighthouse-audit:
     runs-on: ubuntu-latest
@@ -68,7 +67,9 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '22.x'
-    
+        cache: 'npm'
+        cache-dependency-path: xypher-ui/package-lock.json
+
     - name: Install dependencies
       working-directory: ./xypher-ui
       run: npm ci
@@ -76,7 +77,111 @@ jobs:
     - name: Build
       working-directory: ./xypher-ui
       run: npm run build
+      env:
+        NODE_OPTIONS: "--max-old-space-size=8192"
+
+    - name: Serve built app                # FIX: must serve the app before Lighthouse can audit it
+      working-directory: ./xypher-ui
+      run: npx serve -s dist/xypher-ui -l 4200 &
+     
+
+    - name: Wait for server to be ready
+      run: npx wait-on http://localhost:4200 --timeout 30000
+
+    - name: Lighthouse CI
+      uses: treosh/lighthouse-ci-action@v11
+      with:
+        urls: |
+          http://localhost:4200
+        uploadArtifacts: truename: Frontend CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'xypher-ui/**'
+      - '.github/workflows/frontend-ci.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'xypher-ui/**'
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
     
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+        cache-dependency-path: xypher-ui/package-lock.json
+    
+    - name: Install dependencies
+      working-directory: ./xypher-ui
+      run: npm ci
+    
+    - name: Lint code
+      working-directory: ./xypher-ui
+      run: npm run lint || echo "No lint script found"
+    
+    - name: Run tests
+      working-directory: ./xypher-ui
+      run: npm test -- --watch=false --browsers=ChromeHeadless || echo "No tests found"
+    
+    - name: Build for production
+      working-directory: ./xypher-ui
+      run: npm run build
+      env:
+        NODE_OPTIONS: "--max-old-space-size=8192"
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-build
+        path: xypher-ui/dist/xypher-ui/   
+    
+    - name: Run bundle size analysis
+      working-directory: ./xypher-ui
+      run: du -sh dist/* || echo "Build size check"
+
+  lighthouse-audit:
+    runs-on: ubuntu-latest
+    needs: test-and-build
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+        cache: 'npm'
+        cache-dependency-path: xypher-ui/package-lock.json
+
+    - name: Install dependencies
+      working-directory: ./xypher-ui
+      run: npm ci
+    
+    - name: Build
+      working-directory: ./xypher-ui
+      run: npm run build
+      env:
+        NODE_OPTIONS: "--max-old-space-size=8192"
+
+    - name: Serve built app                
+      working-directory: ./xypher-ui
+      run: npx serve -s dist -l 4200 &
+      # NOTE: if Angular, change 'dist' to 'dist/xypher-ui'
+
+    - name: Wait for server to be ready
+      run: npx wait-on http://localhost:4200 --timeout 30000
+
     - name: Lighthouse CI
       uses: treosh/lighthouse-ci-action@v11
       with:
