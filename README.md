@@ -362,6 +362,6 @@ This project is licensed under the [MIT License](./LICENSE).
 
 <div align="center">
 
-Built with ♦ by the Xypher team
+Built with ♦ by the Xavion Dean
 
 </div>
