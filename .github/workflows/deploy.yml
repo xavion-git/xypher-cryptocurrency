@@ -5,7 +5,7 @@ on:
     branches: [ main ]
     tags:
       - 'v*'
-  workflow_dispatch: 
+  workflow_dispatch:
 
 jobs:
   deploy-docker:
@@ -28,20 +28,19 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: ./xypher-backend
-        file: ./Dockerfile                             
+        file: ./Dockerfile
         push: true
         tags: |
           ${{ secrets.DOCKER_USERNAME }}/xypher-backend:latest
           ${{ secrets.DOCKER_USERNAME }}/xypher-backend:${{ github.sha }}
         cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/xypher-backend:latest
         cache-to: type=inline
-
     
     - name: Build and push frontend
       uses: docker/build-push-action@v5
       with:
         context: ./xypher-backend/xypher-ui
-        file: ./xypher-backend/xypher-ui/Dockerfile     
+        file: ./xypher-backend/xypher-ui/Dockerfile
         push: true
         tags: |
           ${{ secrets.DOCKER_USERNAME }}/xypher-frontend:latest
@@ -49,20 +48,36 @@ jobs:
         cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/xypher-frontend:latest
         cache-to: type=inline
 
-  deploy-to-server:
+  deploy-backend:
     runs-on: ubuntu-latest
     needs: deploy-docker
     if: github.ref == 'refs/heads/main'
-    
+
     steps:
-    - name: Deploy to production server
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.DEPLOY_HOST }}
-        username: ${{ secrets.DEPLOY_USER }}
-        key: ${{ secrets.DEPLOY_SSH_KEY }}
-        script: |
-          cd /opt/xypher-cryptocurrency
-          docker-compose pull
-          docker-compose up -d
-          docker system prune -f
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup flyctl
+      uses: superfly/flyctl-actions/setup-flyctl@master
+
+    - name: Deploy backend to Fly.io
+      run: flyctl deploy --remote-only --config fly.backend.toml
+      env:
+        FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    needs: deploy-docker
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup flyctl
+      uses: superfly/flyctl-actions/setup-flyctl@master
+
+    - name: Deploy frontend to Fly.io
+      run: flyctl deploy --remote-only --config fly.frontend.toml
+      env:
+        FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

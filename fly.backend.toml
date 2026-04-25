@@ -1,0 +1,29 @@
+app = "xypher-backend"
+primary_region = "iad"
+
+[build]
+  image = "docker.io/xaviondoc/xypher-backend:latest"
+
+[env]
+  NODE_ENV = "production"
+  HTTP_PORT = "3001"
+  P2P_PORT = "6001"
+
+[http_service]
+  internal_port = 3001
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 6001
+
+  [[services.ports]]
+    port = 6001
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
