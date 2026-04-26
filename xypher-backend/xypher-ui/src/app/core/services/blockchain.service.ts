@@ -6,7 +6,7 @@ import { Block, Transaction, UnspentTxOut } from '../models/block.model';
 
 @Injectable({ providedIn: 'root' })
 export class BlockchainService {
-  private apiUrl = 'http://localhost:3001';
+  private apiUrl = 'https://xypher-backend.fly.dev';
 
   private blocksSubject = new BehaviorSubject<Block[]>([]);
   public blocks$ = this.blocksSubject.asObservable();

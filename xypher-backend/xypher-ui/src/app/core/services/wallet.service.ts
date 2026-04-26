@@ -5,7 +5,7 @@ import { tap, switchMap, startWith, catchError } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class WalletService {
-  private apiUrl = 'http://localhost:3001';
+  private apiUrl = 'https://xypher-backend.fly.dev';
 
   private balanceSubject = new BehaviorSubject<number>(0);
   public balance$ = this.balanceSubject.asObservable();
