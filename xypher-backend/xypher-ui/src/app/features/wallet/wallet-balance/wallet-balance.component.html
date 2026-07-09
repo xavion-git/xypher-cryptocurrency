@@ -1,14 +1,16 @@
-<div class="glass wallet-card">
-  <div class="wallet-left">
-    <div class="wallet-label">Balance</div>
-    <div class="wallet-balance">
-      {{ (balance$ | async) ?? 0 }}
-      <span class="wallet-currency">XYP</span>
+<div class="card balance-card">
+  <div class="balance-top">
+    <div>
+      <h4>wallet balance</h4>
+      <div class="balance-value">
+        {{ balance$ | async }} <span class="unit">XYP</span>
+      </div>
     </div>
-    <div class="wallet-addr-label">Address</div>
-    <div class="wallet-addr">{{ (address$ | async) || 'Loading...' }}</div>
+    <div class="balance-icon">◈</div>
   </div>
-  <div class="wallet-right">
-    <span class="material-symbols-outlined wallet-icon">account_balance_wallet</span>
+
+  <div class="address-row">
+    <label>your address</label>
+    <div class="address-box">{{ address$ | async }}</div>
   </div>
 </div>
