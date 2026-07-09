@@ -1,60 +1,37 @@
-<div class="mining-page">
-
+<div class="page-container">
   <div class="page-header">
-    <div>
-      <h1 class="page-title">Mining</h1>
-      <p class="page-sub">Mine blocks and earn XYP rewards</p>
-    </div>
+    <h1>mining</h1>
+    <p class="page-subtitle">mine new blocks and earn rewards</p>
   </div>
 
-  <!-- Mine button card -->
-  <div class="glass mine-card">
-    <div class="mine-icon">
-      <span class="material-symbols-outlined">excavator</span>
-    </div>
-    <h3 class="mine-title">Mine New Block</h3>
-    <p class="mine-desc">Mine a new block and earn 50 XYP + transaction fees</p>
+  <div class="card mining-card">
+    <div class="mining-icon">⛏</div>
+    <h3>mine new block</h3>
+    <p>mine a new block and earn 50 coins + transaction fees</p>
 
-    <div class="alert alert-success" *ngIf="miningResult && !miningError">
-      <span class="material-symbols-outlined">check_circle</span>
-      {{ miningResult }}
-    </div>
-    <div class="alert alert-error" *ngIf="miningResult && miningError">
-      <span class="material-symbols-outlined">warning</span>
-      {{ miningResult }}
-    </div>
+    <div *ngIf="miningResult" class="alert alert-success">{{ miningResult }}</div>
 
-    <button class="mine-btn" (click)="startMining()" [disabled]="mining">
-      <span *ngIf="!mining">
-        <span class="material-symbols-outlined">play_arrow</span>
-        Start Mining
-      </span>
-      <span *ngIf="mining" class="mining-in-progress">
-        <span class="material-symbols-outlined spinning">progress_activity</span>
-        Mining in Progress...
-      </span>
+    <button class="btn-primary" (click)="startMining()" [disabled]="mining">
+      <span *ngIf="!mining">start mining</span>
+      <span *ngIf="mining">mining in progress...</span>
     </button>
   </div>
 
-  <!-- Transaction pool -->
-  <div class="glass pool-card">
-    <div class="section-header">
-      <span class="material-symbols-outlined">pending</span>
-      Transaction Pool
-    </div>
+  <div class="card pool-card">
+    <h3>transaction pool</h3>
 
-    <div *ngFor="let tx of transactionPool$ | async" class="tx-row">
-      <div class="tx-left">
-        <div class="tx-id">{{ tx.id.substring(0, 24) }}...</div>
-        <div class="tx-meta">{{ tx.txIns.length }} input(s) → {{ tx.txOuts.length }} output(s)</div>
+    <div class="pool-list">
+      <div *ngFor="let tx of transactionPool$ | async" class="pool-item">
+        <div class="tx-id">{{ tx.id.substring(0, 20) }}...</div>
+        <div class="tx-meta">
+          <span>{{ tx.txIns.length }} input(s)</span>
+          <span>{{ tx.txOuts.length }} output(s)</span>
+        </div>
       </div>
-      <div class="tx-amount">{{ tx.txOuts[0]?.amount ?? 0 }} XYP</div>
-    </div>
 
-    <div *ngIf="(transactionPool$ | async)?.length === 0" class="empty-state">
-      <span class="material-symbols-outlined empty-icon">inbox</span>
-      <p>No pending transactions</p>
+      <div *ngIf="(transactionPool$ | async)?.length === 0" class="empty-state">
+        no pending transactions
+      </div>
     </div>
   </div>
-
 </div>

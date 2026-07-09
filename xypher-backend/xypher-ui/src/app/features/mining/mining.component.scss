@@ -1,152 +1,114 @@
-.mining-page {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  color: #fff;
+.page-header {
+  margin-bottom: 24px;
+
+  h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .page-subtitle {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+  }
 }
 
-.page-header { margin-bottom: 4px; }
-.page-title { font-size: 22px; font-weight: 500; color: #fff; letter-spacing: -0.02em; }
-.page-sub { font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 3px; }
-
-.glass {
-  background: rgba(255,255,255,0.07);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 0.5px solid rgba(255,255,255,0.12);
-  border-radius: 12px;
-}
-
-.mine-card {
-  padding: 36px 24px;
+.mining-card {
+  padding: 48px;
   text-align: center;
+  margin-bottom: 20px;
+
+  .mining-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  p {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    margin-bottom: 24px;
+  }
+
+  .alert {
+    max-width: 400px;
+    margin: 0 auto 20px;
+  }
+}
+
+.alert-success {
+  background: #ecfdf5;
+  color: var(--color-success);
+  border: 1px solid #bbf7d0;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+.btn-primary {
+  padding: 14px 32px;
+  background: var(--color-accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+
+  &:hover:not(:disabled) {
+    background: var(--color-accent-dark);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.pool-card {
+  padding: 24px;
+
+  h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+}
+
+.pool-list {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 10px;
 }
 
-.mine-icon .material-symbols-outlined {
-  font-size: 40px;
-  color: rgba(255,255,255,0.15);
-}
+.pool-item {
+  padding: 14px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
 
-.mine-title {
-  font-size: 18px;
-  font-weight: 500;
-  color: #fff;
-}
-
-.mine-desc {
-  font-size: 13px;
-  color: rgba(255,255,255,0.35);
-  margin-bottom: 8px;
-}
-
-.alert {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-size: 12px;
-  width: 100%;
-  max-width: 400px;
-
-  .material-symbols-outlined { font-size: 15px; }
-
-  &.alert-success {
-    background: rgba(74,222,128,0.08);
-    border: 0.5px solid rgba(74,222,128,0.2);
-    color: #4ade80;
+  .tx-id {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: var(--color-accent);
+    margin-bottom: 6px;
   }
-  &.alert-error {
-    background: rgba(248,113,113,0.08);
-    border: 0.5px solid rgba(248,113,113,0.2);
-    color: #f87171;
+
+  .tx-meta {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--color-text-muted);
   }
-}
-
-.mine-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  padding: 12px 32px;
-  background: #fff;
-  color: #000;
-  border: none;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s;
-  margin-top: 6px;
-
-  .material-symbols-outlined { font-size: 16px; }
-
-  &:hover:not(:disabled) { background: rgba(255,255,255,0.9); }
-  &:disabled { opacity: 0.4; cursor: not-allowed; }
-}
-
-.mining-in-progress {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-
-@keyframes spin { to { transform: rotate(360deg); } }
-.spinning { display: inline-block; animation: spin 1s linear infinite; }
-
-.pool-card { padding: 18px 20px; }
-
-.section-header {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10px;
-  font-weight: 500;
-  color: rgba(255,255,255,0.28);
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  margin-bottom: 12px;
-
-  .material-symbols-outlined { font-size: 14px; }
-}
-
-.tx-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 0;
-  border-bottom: 0.5px solid rgba(255,255,255,0.05);
-
-  &:last-child { border-bottom: none; }
-}
-
-.tx-id {
-  font-size: 12px;
-  color: rgba(255,255,255,0.5);
-  font-family: monospace;
-}
-
-.tx-meta {
-  font-size: 11px;
-  color: rgba(255,255,255,0.25);
-  margin-top: 2px;
-}
-
-.tx-amount {
-  font-size: 13px;
-  font-weight: 500;
-  color: rgba(255,255,255,0.7);
 }
 
 .empty-state {
   text-align: center;
-  padding: 28px;
-  color: rgba(255,255,255,0.2);
-
-  .empty-icon { font-size: 28px; display: block; margin-bottom: 8px; }
-  p { font-size: 13px; }
+  padding: 40px;
+  color: var(--color-text-muted);
+  font-size: 14px;
 }
