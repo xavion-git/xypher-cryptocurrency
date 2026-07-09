@@ -1,18 +1,18 @@
 <div class="card send-card">
   <h3>send transaction</h3>
 
-  <form [formGroup]="sendForm" (ngSubmit)="onSubmit()">
+  <form (ngSubmit)="onSubmit()">
     <div class="form-group">
       <label for="recipientAddress">recipient address</label>
       <input
         type="text"
         id="recipientAddress"
-        formControlName="recipientAddress"
+        [formControl]="recipientAddress"
         placeholder="enter 130-character address"
         class="form-control"
       >
-      <div class="error" *ngIf="sendForm.get('recipientAddress')?.invalid && sendForm.get('recipientAddress')?.touched">
-        please enter a valid address (130 characters)
+      <div class="error" *ngIf="recipientAddress.invalid && recipientAddress.touched">
+        please enter a valid address (130 hex characters)
       </div>
     </div>
 
@@ -21,25 +21,25 @@
       <input
         type="number"
         id="amount"
-        formControlName="amount"
+        [formControl]="amount"
         placeholder="0.00"
         step="0.01"
         class="form-control"
       >
-      <div class="error" *ngIf="sendForm.get('amount')?.invalid && sendForm.get('amount')?.touched">
-        please enter a valid amount (minimum 0.01)
+      <div class="error" *ngIf="amount.invalid && amount.touched">
+        please enter a valid amount (minimum 1)
       </div>
     </div>
 
     <div class="checkbox-group">
-      <input type="checkbox" id="mineImmediately" formControlName="mineImmediately">
+      <input type="checkbox" id="mineImmediately" [formControl]="mineImmediately">
       <label for="mineImmediately">mine immediately</label>
     </div>
 
     <div class="alert alert-success" *ngIf="success">{{ success }}</div>
     <div class="alert alert-error" *ngIf="error">{{ error }}</div>
 
-    <button type="submit" [disabled]="sendForm.invalid || loading" class="btn-primary">
+    <button type="submit" [disabled]="recipientAddress.invalid || amount.invalid || loading" class="btn-primary">
       <span *ngIf="!loading">send transaction</span>
       <span *ngIf="loading">processing...</span>
     </button>

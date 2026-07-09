@@ -1,72 +1,47 @@
-<div class="network-page">
-
+<div class="page-container">
   <div class="page-header">
-    <div>
-      <h1 class="page-title">Network</h1>
-      <p class="page-sub">Manage peers and monitor connectivity</p>
-    </div>
+    <h1>network</h1>
+    <p class="page-subtitle">manage peer connections</p>
   </div>
 
-  <!-- Stats -->
-  <div class="stats-grid">
-    <div class="glass stat-card">
-      <div class="stat-label">
-        <span class="material-symbols-outlined">people</span>
-        Active Peers
-      </div>
-      <div class="stat-value">{{ peers.length }}</div>
+  <div class="stat-row">
+    <div class="card mini-stat">
+      <label>active peers</label>
+      <div class="mini-stat-value">{{ peers.length }}</div>
     </div>
-    <div class="glass stat-card">
-      <div class="stat-label">
-        <span class="material-symbols-outlined">wifi</span>
-        Network Status
-      </div>
-      <div class="stat-value" [class.online]="peers.length > 0">
-        {{ peers.length > 0 ? 'Online' : 'Isolated' }}
+    <div class="card mini-stat">
+      <label>network status</label>
+      <div class="mini-stat-value" [class.online]="peers.length > 0">
+        {{ peers.length > 0 ? 'online' : 'offline' }}
       </div>
     </div>
   </div>
 
-  <!-- Peers list -->
-  <div class="glass peers-card">
-    <div class="section-header">
-      <span class="material-symbols-outlined">hub</span>
-      Connected Peers
-    </div>
+  <div class="card peers-card">
+    <h3>connected peers</h3>
 
-    <div *ngIf="loading" class="loading-text">
-      <span class="material-symbols-outlined spinning">progress_activity</span>
-      Loading peers...
-    </div>
+    <div *ngIf="loading" class="empty-state">loading peers...</div>
 
-    <div *ngIf="!loading">
-      <div *ngFor="let peer of peers" class="peer-row">
+    <div class="peer-list" *ngIf="!loading">
+      <div *ngFor="let peer of peers" class="peer-item">
         <div class="peer-left">
-          <span class="peer-dot"></span>
+          <span class="status-dot"></span>
           <span class="peer-address">{{ peer }}</span>
         </div>
-        <span class="peer-status">Connected</span>
+        <span class="peer-status">connected</span>
       </div>
 
-      <div *ngIf="peers.length === 0" class="empty-state">
-        <span class="material-symbols-outlined empty-icon">hub</span>
-        <p>No peers connected</p>
-      </div>
+      <div *ngIf="peers.length === 0" class="empty-state">no peers connected</div>
     </div>
 
-    <!-- Add peer -->
-    <div class="add-peer">
+    <div class="add-peer-row">
       <input
         type="text"
         [(ngModel)]="newPeerAddress"
-        class="peer-input"
-        placeholder="ws://peer-address:6001"
+        class="form-control"
+        placeholder="ws://peer-address:port"
       >
-      <button class="add-btn" (click)="addPeer()">
-        <span class="material-symbols-outlined">add</span>
-        Add Peer
-      </button>
+      <button class="btn-primary" (click)="addPeer()">add peer</button>
     </div>
   </div>
-
 </div>
