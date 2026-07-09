@@ -1,83 +1,57 @@
-<!-- Background slideshow -->
-<div class="bg-container">
-  <div class="bg-slide" [class.active]="currentBg === 0" style="background-image: url('assets/img/city1.jpg')"></div>
-  <div class="bg-slide" [class.active]="currentBg === 1" style="background-image: url('assets/img/city2.jpg')"></div>
-  <div class="bg-slide" [class.active]="currentBg === 2" style="background-image: url('assets/img/city3.jpg')"></div>
-  <div class="bg-slide" [class.active]="currentBg === 3" style="background-image: url('assets/img/city4.jpg')"></div>
-  <div class="bg-overlay"></div>
-</div>
-
-<!-- Layout -->
-<div class="app-layout">
-
+<div class="app-shell">
   <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-logo">
-       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120">
-  <defs>
-    <linearGradient id="a" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#9ea3a8"/>
-      <stop offset="50%" stop-color="#e5e8eb"/>
-      <stop offset="100%" stop-color="#8a8f94"/>
-    </linearGradient>
-  </defs>
-  <!-- X icon -->
-  <circle cx="100" cy="38" r="28" stroke="url(#a)" stroke-width="1.5" fill="none"/>
-  <circle cx="100" cy="38" r="20" stroke="url(#a)" stroke-width="1" fill="none"/>
-  <path d="m88 26 24 24m0-24-24 24" stroke="url(#a)" stroke-width="3" stroke-linecap="round"/>
-  <!-- XYPHER text -->
-  <text x="100" y="82" text-anchor="middle" fill="#e5e8eb" font-family="Helvetica, Arial, sans-serif" font-size="18" letter-spacing="8" font-weight="500">XYPHER</text>
-  <!-- COIN text -->
-  <text x="100" y="100" text-anchor="middle" fill="#8a8f94" font-family="Helvetica, Arial, sans-serif" font-size="9" letter-spacing="6">COIN</text>
-</svg>
- 
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 420" class="logo-icon">
+        <rect width="720" height="420" rx="28" fill="#0f1729"/>
+        <rect x="20" y="20" width="680" height="380" rx="24" fill="#0f1729"/>
+        <circle cx="360" cy="170" r="85" stroke="#4361ee" stroke-width="6" fill="none"/>
+        <path d="m335 140 50 60m0-60-50 60" stroke="#4361ee" stroke-width="10" stroke-linecap="round"/>
+      </svg>
+      <span>Xypher Coin</span>
     </div>
 
     <nav class="sidebar-nav">
-      <div class="nav-section-label">Overview</div>
       <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
-        <span class="material-symbols-outlined">grid_view</span>
-        Dashboard
-      </a>
-
-      <div class="nav-section-label">Finance</div>
-      <a routerLink="/wallet" routerLinkActive="active" class="nav-item">
-        <span class="material-symbols-outlined">account_balance_wallet</span>
-        Wallet
-      </a>
-
-      <div class="nav-section-label">Node</div>
-      <a routerLink="/mining" routerLinkActive="active" class="nav-item">
-        <span class="material-symbols-outlined">excavator</span>
-        Mining
-      </a>
-      <a routerLink="/network" routerLinkActive="active" class="nav-item">
-        <span class="material-symbols-outlined">hub</span>
-        Network
+        <span class="nav-icon"></span> dashboard
       </a>
       <a routerLink="/explorer" routerLinkActive="active" class="nav-item">
-        <span class="material-symbols-outlined">manage_search</span>
-        Explorer
+        <span class="nav-icon"></span> explorer
+      </a>
+      <a routerLink="/wallet" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon"></span> wallet
+      </a>
+      <a routerLink="/network" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon"></span> network
+      </a>
+      <a routerLink="/mining" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon"></span> mining
+      </a>
+      <a routerLink="/settings" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon"></span> settings
       </a>
     </nav>
-
-    <div class="sidebar-footer">
-      <div class="avatar">XG</div>
-      <span class="avatar-name">xavion-git</span>
-    </div>
   </aside>
 
   <!-- Main content -->
-  <main class="main-content">
-    <router-outlet></router-outlet>
-  </main>
+  <div class="main-area">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="menu-toggle">☰</span>
+        <h1 class="app-title">xypher</h1>
+      </div>
+      <div class="topbar-right">
+        <span class="status-badge">
+          <span class="status-dot"></span> synced
+        </span>
+        <button class="icon-btn"></button>
+        <button class="icon-btn"></button>
+        <div class="avatar">NJ</div>
+      </div>
+    </header>
 
-</div>
-
-<!-- Slide dots -->
-<div class="slide-dots">
-  <span class="dot" [class.active]="currentBg === 0" (click)="goToSlide(0)"></span>
-  <span class="dot" [class.active]="currentBg === 1" (click)="goToSlide(1)"></span>
-  <span class="dot" [class.active]="currentBg === 2" (click)="goToSlide(2)"></span>
-  <span class="dot" [class.active]="currentBg === 3" (click)="goToSlide(3)"></span>
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
 </div>

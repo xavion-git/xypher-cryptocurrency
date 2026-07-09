@@ -1,90 +1,104 @@
-<div class="dashboard">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
-  <!-- Header -->
-  <div class="page-header">
-    <div>
-      <h1 class="page-title">Dashboard</h1>
-      <p class="page-sub">Welcome back</p>
-    </div>
-    <div class="header-right">
-      <div class="node-pill" [class.offline]="offline">
-        <span class="status-dot"></span>
-        {{ offline ? 'Node offline' : 'Node online' }}
+<div class="page-container">
+  <!-- Top action cards -->
+  <div class="action-cards">
+    <a routerLink="/network" class="action-card action-card--accent">
+      <div>
+        <h3>run your own node</h3>
+        <p>docs to get started</p>
       </div>
-      <button (click)="refresh()" class="refresh-btn">
-        <span class="material-symbols-outlined">refresh</span>
-      </button>
-    </div>
+      <span class="arrow">→</span>
+    </a>
+    <a routerLink="/explorer" class="action-card action-card--dark">
+      <div>
+        <h3>api reference</h3>
+        <p>rest endpoints</p>
+      </div>
+      <span class="arrow">→</span>
+    </a>
   </div>
 
-  <!-- Offline warning -->
-  <div *ngIf="offline" class="glass alert-error">
-    <span class="material-symbols-outlined">warning</span>
-    Cannot connect to Xypher node. Make sure the backend is running on port 3001.
-  </div>
+  <!-- Stat cards -->
+  <div class="stat-cards">
+    <div class="card stat-card">
+      <h4>wallet balance</h4>
+      <div class="mini-bars">
+        <span style="height: 40%"></span>
+        <span style="height: 65%"></span>
+        <span style="height: 80%"></span>
+        <span style="height: 90%"></span>
+        <span style="height: 100%"></span>
+      </div>
+      <div class="stat-value">
+        {{ balance$ | async }} <span class="unit">XYP</span>
+      </div>
+    </div>
 
-  <!-- Wallet Card -->
-  <div class="glass wallet-card">
-    <div class="wallet-left">
-      <div class="wallet-label">Balance</div>
-      <div class="wallet-balance">
-        {{ (balance$ | async) ?? 0 }}
-        <span class="wallet-currency">XYP</span>
+    <div class="card stat-card">
+      <h4>network hash rate</h4>
+      <div class="stat-sub">
+        daily average <span class="trend trend--up">▲ 4%</span>
       </div>
-      <div class="wallet-addr-label">Address</div>
-      <div class="wallet-addr">{{ address$ | async }}</div>
-    </div>
-    <div class="wallet-right">
-      <span class="material-symbols-outlined wallet-icon">account_balance_wallet</span>
-    </div>
-  </div>
-
-  <!-- Stats Grid -->
-  <div class="stats-grid">
-    <div class="glass stat-card">
-      <div class="stat-label">
-        <span class="material-symbols-outlined">stacks</span>
-        Total Blocks
+      <div class="mini-chart">
+        <!-- Chart.js line chart goes here -->
+        <canvas #hashRateChart></canvas>
       </div>
-      <div class="stat-value">{{ networkStats.totalBlocks }}</div>
-    </div>
-    <div class="glass stat-card">
-      <div class="stat-label">
-        <span class="material-symbols-outlined">bolt</span>
-        Difficulty
-      </div>
-      <div class="stat-value">{{ networkStats.difficulty }}</div>
-    </div>
-    <div class="glass stat-card">
-      <div class="stat-label">
-        <span class="material-symbols-outlined">pending</span>
-        Pending Txns
-      </div>
-      <div class="stat-value">{{ networkStats.pendingTransactions }}</div>
-    </div>
-  </div>
-
-  <!-- Latest Blocks -->
-  <div class="glass blocks-card">
-    <div class="section-header">
-      <span class="material-symbols-outlined">history</span>
-      Latest Blocks
-    </div>
-    <div *ngIf="latestBlocks.length === 0" class="empty-state">
-      <span class="material-symbols-outlined empty-icon">cube</span>
-      <p>No blocks yet</p>
-    </div>
-    <div *ngFor="let block of latestBlocks" class="block-row">
-      <div class="block-left">
-        <div class="block-index">#{{ block.index }}</div>
-        <div class="block-hash">{{ block.hash }}</div>
-      </div>
-      <div class="block-right">
-        <span class="badge">{{ block.data.length }} txns</span>
-        <span class="badge">Diff: {{ block.difficulty }}</span>
-        <span class="badge time">{{ block.timestamp * 1000 | date:'shortTime' }}</span>
+      <div class="stat-value">
+        312 <span class="unit">TH/s</span>
       </div>
     </div>
   </div>
 
+  <!-- Main chart card -->
+  <div class="card main-chart-card">
+    <div class="tabs">
+      <button class="tab active">transactions</button>
+      <button class="tab">mining</button>
+    </div>
+
+    <div class="chart-stats">
+      <div class="chart-stat">
+        <label>mempool</label>
+        <span>{{ networkStats.pendingTransactions }}</span>
+      </div>
+      <div class="chart-stat">
+        <label>last block</label>
+        <span>{{ networkStats.totalBlocks }}</span>
+      </div>
+      <div class="chart-stat">
+        <label>last hour</label>
+        <span>18</span>
+      </div>
+      <div class="chart-stat">
+        <label>today</label>
+        <span>304</span>
+      </div>
+    </div>
+
+    <div class="chart-area">
+      <canvas #mainChart></canvas>
+    </div>
+  </div>
+
+  <!-- Recent blocks table -->
+  <div class="card table-card">
+    <h3>recent blocks</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>height</th>
+          <th>hash</th>
+          <th>tx</th>
+          <th>mine time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let block of latestBlocks">
+          <td>{{ block.index }}</td>
+          <td class="mono">{{ block.hash.substring(0, 8) }}...</td>
+          <td>{{ block.data.length }}</td>
+          <td class="trend trend--up">▲ 12%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
