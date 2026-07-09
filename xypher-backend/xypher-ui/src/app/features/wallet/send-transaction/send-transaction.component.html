@@ -1,60 +1,47 @@
-<div class="glass send-card">
-  <div class="section-header">
-    <span class="material-symbols-outlined">send</span>
-    Send Transaction
-  </div>
+<div class="card send-card">
+  <h3>send transaction</h3>
 
-  <div class="form-group">
-    <label class="form-label">Recipient Address</label>
-    <input
-      type="text"
-      [formControl]="recipientAddress"
-      placeholder="Enter 130-character hex address"
-      class="form-input"
-      [class.error]="recipientAddress.invalid && recipientAddress.touched"
-    >
-    <div class="error-text" *ngIf="recipientAddress.invalid && recipientAddress.touched">
-      Address must be exactly 130 hex characters
+  <form [formGroup]="sendForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="recipientAddress">recipient address</label>
+      <input
+        type="text"
+        id="recipientAddress"
+        formControlName="recipientAddress"
+        placeholder="enter 130-character address"
+        class="form-control"
+      >
+      <div class="error" *ngIf="sendForm.get('recipientAddress')?.invalid && sendForm.get('recipientAddress')?.touched">
+        please enter a valid address (130 characters)
+      </div>
     </div>
-  </div>
 
-  <div class="form-group">
-    <label class="form-label">Amount (XYP)</label>
-    <input
-      type="number"
-      [formControl]="amount"
-      placeholder="0"
-      min="1"
-      class="form-input"
-      [class.error]="amount.invalid && amount.touched"
-    >
-    <div class="error-text" *ngIf="amount.invalid && amount.touched">
-      Amount must be at least 1
+    <div class="form-group">
+      <label for="amount">amount</label>
+      <input
+        type="number"
+        id="amount"
+        formControlName="amount"
+        placeholder="0.00"
+        step="0.01"
+        class="form-control"
+      >
+      <div class="error" *ngIf="sendForm.get('amount')?.invalid && sendForm.get('amount')?.touched">
+        please enter a valid amount (minimum 0.01)
+      </div>
     </div>
-  </div>
 
-  <div class="checkbox-group">
-    <input type="checkbox" id="mineNow" [formControl]="mineImmediately">
-    <label for="mineNow">Mine immediately</label>
-  </div>
+    <div class="checkbox-group">
+      <input type="checkbox" id="mineImmediately" formControlName="mineImmediately">
+      <label for="mineImmediately">mine immediately</label>
+    </div>
 
-  <div class="alert alert-success" *ngIf="success">
-    <span class="material-symbols-outlined">check_circle</span>
-    {{ success }}
-  </div>
-  <div class="alert alert-error" *ngIf="error">
-    <span class="material-symbols-outlined">warning</span>
-    {{ error }}
-  </div>
+    <div class="alert alert-success" *ngIf="success">{{ success }}</div>
+    <div class="alert alert-error" *ngIf="error">{{ error }}</div>
 
-  <button class="send-btn" (click)="onSubmit()" [disabled]="recipientAddress.invalid || amount.invalid || loading">
-    <span *ngIf="!loading">
-      <span class="material-symbols-outlined">send</span>
-      Send XYP
-    </span>
-    <span *ngIf="loading">
-      <span class="material-symbols-outlined spinning">progress_activity</span>
-      Processing...
-    </span>
-  </button>
+    <button type="submit" [disabled]="sendForm.invalid || loading" class="btn-primary">
+      <span *ngIf="!loading">send transaction</span>
+      <span *ngIf="loading">processing...</span>
+    </button>
+  </form>
 </div>
