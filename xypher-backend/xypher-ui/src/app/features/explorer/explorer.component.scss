@@ -1,10 +1,14 @@
-// Styles handled globally in styles.css
-.explorer-page {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  color: #fff;
-}
+.page-header {
+  margin-bottom: 24px;
 
-.page-title { font-size: 22px; font-weight: 500; color: #fff; letter-spacing: -0.02em; }
-.page-sub { font-size: 12px; color: rgba(255,255,255,0.35); margin-top: 3px; }
+  h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .page-subtitle {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+  }
+}
