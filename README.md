@@ -34,33 +34,8 @@ Xypher is a full-stack blockchain implementation demonstrating core Web3 archite
 
 ## Architecture
 
-Xypher is organized into five clean layers:
+<img width="6310" height="5070" alt="diagram" src="https://github.com/user-attachments/assets/24a12884-4272-4745-9935-77ccd9a86c17" />
 
-```
-┌─────────────────────────────────────────────────────┐
-│                   Frontend Layer                     │
-│          Angular Dashboard  •  Blockchain Explorer   │
-└──────────────────────┬──────────────────────────────┘
-                       │ HTTP / WebSocket
-┌──────────────────────▼──────────────────────────────┐
-│                    API Layer                         │
-│              Express REST  •  Node Control           │
-└──────────┬───────────────────────────┬──────────────┘
-           │                           │
-┌──────────▼──────────┐   ┌────────────▼─────────────┐
-│  Blockchain Layer   │   │      Network Layer        │
-│  Block Creation     │   │  Peer Discovery           │
-│  PoW Mining         │   │  Chain Synchronization    │
-│  Chain Validation   │   │  Block Broadcasting       │
-└──────────┬──────────┘   └────────────┬─────────────┘
-           │                           │
-┌──────────▼──────────┐   ┌────────────▼─────────────┐
-│   Wallet Layer      │   │       Data Layer          │
-│  Key Generation     │   │       MongoDB             │
-│  TX Signing         │   │                           │
-│  Balance Tracking   │   │                           │
-└─────────────────────┘   └──────────────────────────┘
-```
 
 ---
 
